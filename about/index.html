@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>About — The Garcia Report</title>
+  <meta name="description" content="Passionate, honest coverage with heart and grit" />
+  <meta name="author" content="George Garcia" />
+  <meta name="theme-color" content="#0a0a0b" />
+  <link rel="canonical" href="/about/" />
+  <meta property="og:site_name" content="The Garcia Report" />
+  <meta property="og:title" content="About — The Garcia Report" />
+  <meta property="og:description" content="Passionate, honest coverage with heart and grit" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="About — The Garcia Report" />
+  <meta name="twitter:description" content="Passionate, honest coverage with heart and grit" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/styles.css" />
+</head>
+<body>
+  <div class="ticker">
+    <div class="wrap">
+      <span>Breaking · Carlos Prates rising</span>
+      <span>Boxing · Pacquiao’s return still echoing</span>
+      <span>Local · Fresno fight scene covered</span>
+      <span>UFC · Honest picks, no fluff</span>
+    </div>
+  </div>
+
+  <header>
+    <div class="wrap header-inner">
+      <div>
+        <a href="/" class="logo">THE GARCIA <em>REPORT</em></a>
+        <span class="tag">Passionate, honest coverage with heart and grit</span>
+      </div>
+      <button class="menu-toggle" type="button" aria-label="Menu" aria-expanded="false">Menu</button>
+      <nav id="site-nav">
+        <a href="/">Latest</a>
+        <a href="/boxing/">Boxing</a>
+        <a href="/ufc/">UFC / MMA</a>
+        <a href="/interviews/">Local</a>
+        <a href="/about/" class="active">About</a>
+      </nav>
+      <a class="cta" href="mailto:hello@thegarciareport.com?subject=Subscribe%20to%20The%20Garcia%20Report">Subscribe</a>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="about-hero">
+      <h1>About The Garcia Report</h1>
+      <p class="lead">Passionate, honest coverage with heart and grit — boxing and MMA journalism from Fresno and beyond.</p>
+    </div>
+    <div class="about-grid">
+      <div class="about-card">
+        <h2>George Garcia</h2>
+        <p>George Garcia is the voice behind The Garcia Report: a fight writer covering boxing and MMA with the same intensity the athletes bring into the cage and the ring.</p>
+        <p>Based in Fresno, California, George writes about legends returning, rising killers, local fighters chasing their first belts, and the chaos that still makes combat sports feel alive.</p>
+        <p>No fluff. No manufactured narratives. Just honest takes — picks, interviews, live notes, and stories that respect the grit it takes to fight.</p>
+      </div>
+      <div class="about-card">
+        <h2>What You’ll Find</h2>
+        <p><strong style="color:#f4f4f5">Boxing</strong> — Press conferences, title fights, and the sweet science without the spin.</p>
+        <p><strong style="color:#f4f4f5">UFC / MMA</strong> — Predictions, live analysis, and fighters who still feel dangerous.</p>
+        <p><strong style="color:#f4f4f5">Interviews</strong> — Local voices from Fresno gyms and the amateur scene.</p>
+        <p style="margin-top:1.25rem"><a class="cta" href="mailto:hello@thegarciareport.com?subject=Hello%20from%20The%20Garcia%20Report%20reader">Get in touch</a></p>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="wrap footer-inner">
+      <div>
+        <div class="logo">THE GARCIA <em>REPORT</em></div>
+        <p style="margin-top:0.4rem">George Garcia · Boxing &amp; MMA coverage from Fresno and beyond.</p>
+      </div>
+      <div class="footer-links">
+        <a href="/boxing/">Boxing</a>
+        <a href="/ufc/">UFC</a>
+        <a href="/interviews/">Interviews</a>
+        <a href="/about/">About</a>
+      </div>
+      <p>© 2026 The Garcia Report</p>
+    </div>
+  </footer>
+  <script>
+    (function () {
+      var btn = document.querySelector('.menu-toggle');
+      var nav = document.getElementById('site-nav');
+      if (!btn || !nav) return;
+      btn.addEventListener('click', function () {
+        var open = nav.classList.toggle('open');
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+    })();
+  </script>
+</body>
+</html>
