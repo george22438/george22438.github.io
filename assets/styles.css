@@ -422,6 +422,31 @@ footer p { color: var(--muted); font-size: 0.8rem; }
   margin: 0 0 1.15rem 1.35rem;
 }
 .prose li { margin-bottom: 0.4rem; }
+
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 1.5rem;
+  font-size: 0.95rem;
+}
+.prose th,
+.prose td {
+  border: 1px solid var(--border);
+  padding: 0.65rem 0.75rem;
+  text-align: left;
+  vertical-align: top;
+}
+.prose th {
+  background: #141416;
+  color: var(--gold, #d4af37);
+  font-family: "Bebas Neue", Impact, sans-serif;
+  letter-spacing: 0.06em;
+  font-weight: 400;
+  font-size: 1rem;
+}
+.prose tr:nth-child(even) td { background: rgba(255,255,255,0.03); }
+.prose td strong { color: #fff; white-space: nowrap; }
+
 .prose figure {
   margin: 1.5rem 0;
   border-radius: 4px;
