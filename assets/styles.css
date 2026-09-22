@@ -129,8 +129,8 @@ nav a.active { color: var(--red); }
   overflow: hidden;
   min-height: 380px;
   background-image:
-    linear-gradient(160deg, rgba(225,6,0,0.35) 0%, transparent 45%),
-    linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.25) 55%),
+    linear-gradient(160deg, rgba(225,6,0,0.28) 0%, transparent 40%),
+    linear-gradient(to top, rgba(10,10,11,0.97) 0%, rgba(10,10,11,0.88) 42%, rgba(10,10,11,0.55) 70%, rgba(10,10,11,0.35) 100%),
     var(--hero-image, radial-gradient(ellipse at 30% 40%, #3a1010 0%, #121214 70%));
   background-size: cover;
   background-position: left center;
