@@ -376,17 +376,18 @@ footer p { color: var(--muted); font-size: 0.8rem; }
 }
 .article-hero {
   width: 100%;
-  max-height: 420px;
   margin: 0 0 2rem;
   border-radius: 4px;
   overflow: hidden;
   border: 1px solid var(--border);
+  background: #08080a;
 }
 .article-hero img {
   width: 100%;
-  max-height: 420px;
-  object-fit: cover;
-  object-position: left center;
+  height: auto;
+  max-height: none;
+  object-fit: contain;
+  object-position: center;
   display: block;
 }
 .prose {
