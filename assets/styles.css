@@ -623,3 +623,17 @@ footer p { color: var(--muted); font-size: 0.8rem; }
 .article-nav a {
   display: block;
 }
+
+
+.ml-fav { color: var(--red); font-weight: 700; }
+.ml-dog { color: #22c55e; font-weight: 700; }
+.ml-board { list-style: none; padding: 0; margin: 0 0 1.5rem; }
+.ml-board li {
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.03);
+  padding: 0.7rem 0.9rem;
+  margin-bottom: 0.4rem;
+  border-radius: 4px;
+  font-size: 1.05rem;
+}
+.ml-note { color: var(--muted); font-size: 0.95rem; margin-bottom: 2rem; }
