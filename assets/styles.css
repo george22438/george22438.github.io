@@ -660,3 +660,72 @@ footer p { color: var(--muted); font-size: 0.8rem; }
   font-size: 1.05rem;
 }
 .ml-note { color: var(--muted); font-size: 0.95rem; margin-bottom: 2rem; }
+
+
+/* Article engagement: glove likes + comments */
+.engagement {
+  margin: 2.5rem 0 1rem;
+  padding: 1.5rem 0 0;
+  border-top: 1px solid var(--border);
+}
+.engagement-like {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.glove-like {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.55rem 1.1rem 0.55rem 0.85rem;
+  cursor: pointer;
+  font-family: Inter, system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  transition: border-color 0.15s, background 0.15s, transform 0.1s;
+}
+.glove-like:hover {
+  border-color: var(--red);
+  transform: translateY(-1px);
+}
+.glove-like.is-liked {
+  border-color: var(--red);
+  background: rgba(225, 6, 0, 0.15);
+  color: #fff;
+}
+.glove-like.is-liked .glove-icon { color: var(--red); }
+.glove-like:disabled,
+.glove-like.is-liked {
+  cursor: default;
+}
+.glove-icon {
+  width: 28px;
+  height: 28px;
+  display: block;
+  color: var(--muted);
+}
+.glove-like-count {
+  font-family: "Bebas Neue", Impact, sans-serif;
+  font-size: 1.35rem;
+  letter-spacing: 0.04em;
+  min-width: 1.5ch;
+}
+.engagement h3 {
+  font-family: "Bebas Neue", Impact, sans-serif;
+  font-size: 1.75rem;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.35rem;
+}
+.engagement-note {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-bottom: 1.25rem;
+}
+.giscus, .giscus-frame {
+  width: 100%;
+}
