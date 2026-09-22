@@ -33,7 +33,16 @@ img { max-width: 100%; height: auto; display: block; }
   overflow: hidden;
   white-space: nowrap;
 }
-.ticker span { margin-right: 2.5rem; }
+.ticker a {
+  margin-right: 2.5rem;
+  color: #fff;
+  text-decoration: none;
+  display: inline-block;
+}
+.ticker a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 
 header {
   border-bottom: 1px solid var(--border);
