@@ -51,12 +51,24 @@ header {
   gap: 1rem;
 }
 .logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
   font-family: "Bebas Neue", Impact, sans-serif;
   font-size: 1.85rem;
   letter-spacing: 0.04em;
   line-height: 1;
 }
+.logo-mark {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  flex-shrink: 0;
+  border-radius: 4px;
+}
+.logo-text { display: inline-block; }
 .logo em { font-style: normal; color: var(--red); }
+footer .logo-mark { width: 40px; height: 40px; }
 .tag {
   display: block;
   font-family: Inter, sans-serif;
