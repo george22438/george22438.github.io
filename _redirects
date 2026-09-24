@@ -1,1 +1,7 @@
+/mma-articles/* /ufc/ 301
+/boxing-articles/* /boxing/ 301
+/category/mma/* /ufc/ 301
+/category/boxing/* /boxing/ 301
+/category/interviews/* /interviews/ 301
+/g / 301
 /404 /404.html 404
