@@ -1,5 +1,5 @@
 /* The Garcia Report service worker. Cache version is injected at build time. */
-var VERSION = "20260924211509";
+var VERSION = "20260924212454";
 var PREFIX = "tgr-";
 var PAGES = PREFIX + "pages-" + VERSION;
 var STATIC = PREFIX + "static-" + VERSION;
