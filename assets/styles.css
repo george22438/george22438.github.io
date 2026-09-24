@@ -56,7 +56,8 @@ header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 0;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
   gap: 1rem;
 }
 .logo {
@@ -372,7 +373,8 @@ footer .logo { font-size: 1.4rem; }
 footer p { color: var(--muted); font-size: 0.8rem; }
 .footer-links {
   display: flex;
-  gap: 1.25rem;
+  flex-wrap: wrap;
+  gap: 0.6rem 1.25rem;
   font-size: 0.8rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -997,3 +999,17 @@ nav a { white-space: nowrap; }
 @media (min-width: 801px) and (max-width: 1040px) {
   nav { gap: 0.9rem; font-size: 0.78rem; }
 }
+/* Rankings: records + weight limits */
+.rk-list li .rk-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; overflow-wrap: normal; }
+.rk-rec {
+  flex: 0 0 auto;
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.rk-list li .rk-move { min-width: 1.6rem; text-align: right; }
+.rk-champ-rec { color: #d4d4d8; font-weight: 600; letter-spacing: 0.04em; white-space: nowrap; }
+.rk-limit { font-weight: 600; color: #d4d4d8; background: var(--surface); border: 1px solid var(--border); border-radius: 2px; padding: 0.1rem 0.4rem; }
+.rk-jump-lim { color: var(--muted); font-weight: 500; margin-left: 0.15rem; }
