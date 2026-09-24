@@ -729,3 +729,74 @@ footer p { color: var(--muted); font-size: 0.8rem; }
 .giscus, .giscus-frame {
   width: 100%;
 }
+
+/* ---------- PWA: install hint ---------- */
+.install-hint {
+  position: fixed;
+  left: 50%;
+  bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+  transform: translate(-50%, 140%);
+  width: min(calc(100% - 1.5rem), 480px);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0.75rem 0.75rem 0.85rem;
+  background: rgba(20,20,22,0.97);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--red);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.55);
+  color: var(--text);
+  z-index: 60;
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+.install-hint.is-visible { transform: translate(-50%, 0); opacity: 1; }
+.install-icon { width: 40px; height: 40px; border-radius: 9px; flex-shrink: 0; }
+.install-text { flex: 1; font-size: 0.85rem; line-height: 1.4; margin: 0; }
+.install-text strong { color: #fff; font-weight: 700; }
+.install-share { display: inline-block; vertical-align: -3px; color: var(--red); }
+.install-btn {
+  background: var(--red);
+  color: #fff;
+  border: 0;
+  border-radius: 6px;
+  padding: 0.5rem 0.8rem;
+  font: 700 0.8rem Inter, system-ui, sans-serif;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.install-btn:hover { background: var(--red-dim); }
+.install-close {
+  background: transparent;
+  border: 0;
+  color: var(--muted);
+  font-size: 1.5rem;
+  line-height: 1;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.install-close:hover { color: #fff; }
+
+/* ---------- PWA: standalone safe areas (iOS black-translucent status bar) ---------- */
+@media all and (display-mode: standalone) {
+  body { padding-top: env(safe-area-inset-top, 0px); }
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: env(safe-area-inset-top, 0px);
+    background: var(--bg);
+    z-index: 50;
+  }
+  header { top: env(safe-area-inset-top, 0px); }
+  .wrap {
+    padding-left: max(1.25rem, env(safe-area-inset-left, 0px));
+    padding-right: max(1.25rem, env(safe-area-inset-right, 0px));
+  }
+  footer { padding-bottom: calc(2.5rem + env(safe-area-inset-bottom, 0px)); }
+}
