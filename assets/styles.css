@@ -1656,6 +1656,84 @@ nav a { white-space: nowrap; }
   font-weight: 700;
   margin-left: 0.25rem;
 }
+
+.fx-cat-board {
+  margin-top: 1.25rem;
+}
+.fx-cat-board h3 {
+  margin: 0 0 0.35rem;
+  font-family: "Bebas Neue", Impact, sans-serif;
+  letter-spacing: 0.06em;
+  font-size: 1.2rem;
+  font-weight: 400;
+  color: #fff;
+}
+.fx-cat-legend {
+  margin: 0 0 0.65rem;
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+.fx-cat-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.fx-cat-table th,
+.fx-cat-table td {
+  white-space: nowrap;
+  font-size: 0.82rem;
+}
+.fx-cat-table th {
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+}
+.fx-cat-cell {
+  color: var(--muted);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.fx-cat-cell.has-pts {
+  color: #e4e4e7;
+  font-weight: 600;
+}
+.fx-breakdown {
+  list-style: none;
+  margin: 0.75rem 0 0;
+  padding: 0.65rem 0 0;
+  border-top: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35rem 0.75rem;
+}
+.fx-cat {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+.fx-cat.has-pts {
+  color: #d4d4d8;
+}
+.fx-cat-label {
+  min-width: 0;
+}
+.fx-cat-pts {
+  font-family: "Bebas Neue", Impact, sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.03em;
+  color: inherit;
+  font-variant-numeric: tabular-nums;
+}
+.fx-cat.has-pts .fx-cat-pts {
+  color: var(--red);
+}
+@media (min-width: 720px) {
+  .fx-breakdown {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+
 @media (max-width: 560px) {
   .fx-standings-head { flex-direction: column; align-items: flex-start; }
 }

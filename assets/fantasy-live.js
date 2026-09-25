@@ -8,6 +8,20 @@
   var STANDINGS_PATH = "standings/vegas121";
   var ORDER_DEFAULT = ["tgr", "open1", "open2", "open3"];
 
+  // Points by scoring category (keys match agent/updater breakdown object)
+  var CATEGORIES = [
+    { key: "decision", label: "Decision", short: "DEC" },
+    { key: "ko_tko", label: "KO/TKO", short: "KO" },
+    { key: "submission", label: "Submission", short: "SUB" },
+    { key: "draw", label: "Draw", short: "DRW" },
+    { key: "knockdown", label: "Knockdown", short: "KD" },
+    { key: "takedown", label: "Takedown", short: "TD" },
+    { key: "sig_strike", label: "Sig. strikes", short: "SS" },
+    { key: "fotn", label: "Fight of Night", short: "FOTN" },
+    { key: "potn", label: "Perf. of Night", short: "POTN" },
+  ];
+
+
   var root = document.getElementById("fx-live-standings");
   if (!root) return;
 
@@ -58,6 +72,45 @@
     if (!Number.isFinite(x)) return "0";
     if (Math.abs(x - Math.round(x)) < 1e-9) return String(Math.round(x));
     return x.toFixed(1).replace(/\.0$/, "");
+  }
+
+  function emptyBreakdown() {
+    var b = {};
+    CATEGORIES.forEach(function (c) {
+      b[c.key] = 0;
+    });
+    return b;
+  }
+
+  function normalizeBreakdown(raw) {
+    var b = emptyBreakdown();
+    if (!raw || typeof raw !== "object") return b;
+    CATEGORIES.forEach(function (c) {
+      var n = Number(raw[c.key]);
+      b[c.key] = Number.isFinite(n) ? n : 0;
+    });
+    return b;
+  }
+
+  function renderBreakdownHtml(breakdown, compact) {
+    var b = normalizeBreakdown(breakdown);
+    var items = CATEGORIES.map(function (c) {
+      var v = b[c.key];
+      var cls =
+        "fx-cat" + (v ? " has-pts" : "") + (compact ? " compact" : "");
+      return (
+        '<li class="' +
+        cls +
+        '" title="' +
+        esc(c.label) +
+        '"><span class="fx-cat-label">' +
+        esc(compact ? c.short : c.label) +
+        '</span><span class="fx-cat-pts">' +
+        esc(fmtPts(v)) +
+        "</span></li>"
+      );
+    }).join("");
+    return '<ul class="fx-breakdown" aria-label="Points by category">' + items + "</ul>";
   }
 
   function fmtTime(ts) {
@@ -151,6 +204,41 @@
       })
       .join("");
 
+    var catHead =
+      "<th>#</th><th>Team</th>" +
+      CATEGORIES.map(function (c) {
+        return '<th title="' + esc(c.label) + '">' + esc(c.short) + "</th>";
+      }).join("") +
+      "<th>Total</th>";
+    var catRows = list
+      .map(function (t, i) {
+        var b = normalizeBreakdown(t.breakdown);
+        var cells = CATEGORIES.map(function (c) {
+          var v = b[c.key];
+          return (
+            '<td class="fx-cat-cell' +
+            (v ? " has-pts" : "") +
+            '">' +
+            esc(fmtPts(v)) +
+            "</td>"
+          );
+        }).join("");
+        return (
+          "<tr>" +
+          '<td class="fx-rank-cell">' +
+          (i + 1) +
+          "</td>" +
+          "<td>" +
+          esc(t.name) +
+          "</td>" +
+          cells +
+          '<td class="fx-pts">' +
+          esc(fmtPts(t.points)) +
+          "</td></tr>"
+        );
+      })
+      .join("");
+
     root.innerHTML =
       '<div class="fx-table-wrap">' +
       '<table class="fx-table fx-standings-live">' +
@@ -158,7 +246,20 @@
       "<tbody>" +
       (rows ||
         '<tr><td colspan="3" class="fx-muted">No teams yet.</td></tr>') +
-      "</tbody></table></div>";
+      "</tbody></table></div>" +
+      '<div class="fx-cat-board">' +
+      "<h3>Points by category</h3>" +
+      '<p class="fx-muted fx-cat-legend">DEC decision · KO finish · SUB submission · DRW draw · KD knockdown · TD takedown · SS sig. strikes · FOTN / POTN bonuses</p>' +
+      '<div class="fx-table-wrap fx-cat-scroll">' +
+      '<table class="fx-table fx-cat-table">' +
+      "<thead><tr>" +
+      catHead +
+      "</tr></thead><tbody>" +
+      (catRows ||
+        '<tr><td colspan="' +
+        String(3 + CATEGORIES.length) +
+        '" class="fx-muted">No teams yet.</td></tr>') +
+      "</tbody></table></div></div>";
   }
 
   function renderTeams(data) {
@@ -209,7 +310,9 @@
           "</ul>" +
           '<div class="fx-team-pts"><span>Points</span><strong>' +
           esc(fmtPts(t.points)) +
-          "</strong></div></article>"
+          "</strong></div>" +
+          renderBreakdownHtml(t.breakdown, false) +
+          "</article>"
         );
       })
       .join("");
@@ -293,6 +396,7 @@
         name: t.name,
         owner: t.manager || t.name,
         points: t.points || 0,
+        breakdown: emptyBreakdown(),
         roster: roster,
       };
     });
