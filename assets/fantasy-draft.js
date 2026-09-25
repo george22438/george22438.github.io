@@ -392,13 +392,36 @@
     return { ok: true };
   }
 
+  function seatIds() {
+    return ["tgr", "open1", "open2", "open3"];
+  }
+
+  function unclaimedSeats(d) {
+    var teams = (d && d.teams) || {};
+    return seatIds().filter(function (id) {
+      return !teams[id] || !teams[id].claimed;
+    });
+  }
+
+  function seatLabel(d, id) {
+    var t = d && d.teams && d.teams[id];
+    return (t && (t.name || t.owner)) || id;
+  }
+
   function applyStart(d) {
     if (!d || d.meta.status !== "lobby") return { ok: false, error: "Not in lobby" };
-    var claimed = 0;
-    Object.keys(d.teams).forEach(function (id) {
-      if (d.teams[id].claimed) claimed++;
-    });
-    if (claimed < 1) return { ok: false, error: "Need at least one claimed team" };
+    var missing = unclaimedSeats(d);
+    if (missing.length) {
+      return {
+        ok: false,
+        error:
+          "Need all 4 seats claimed before starting (waiting on " +
+          missing.map(function (id) {
+            return seatLabel(d, id);
+          }).join(", ") +
+          "). Snake stalls on empty seats.",
+      };
+    }
     d.meta.status = "drafting";
     d.meta.round = 1;
     d.meta.pickIndex = 0;
@@ -513,6 +536,24 @@
       render();
       return;
     }
+    // Pilot: claimed seats can be rejoined (no password). Back / new device
+    // used to trap managers on the join screen with only "Watch as spectator".
+    var existing = state.draft && state.draft.teams && state.draft.teams[teamId];
+    if (existing && existing.claimed) {
+      state.spectator = false;
+      state.session.displayName = displayName || existing.owner || existing.name || teamId;
+      state.session.teamId = teamId;
+      state.session.spectator = false;
+      state.session.roomCode = code;
+      saveSession();
+      pulsePresence();
+      var stRe = state.draft && state.draft.meta && state.draft.meta.status;
+      state.mode =
+        stRe === "complete" ? "complete" : stRe === "drafting" ? "drafting" : "lobby";
+      render();
+      return;
+    }
+
     state.busy = true;
     render();
     adapter
@@ -638,7 +679,7 @@
   function renderJoin() {
     var d = state.draft || createInitialDraft();
     var teams = d.teams || {};
-    var cards = ["tgr", "open1", "open2", "open3"]
+    var cards = seatIds()
       .map(function (id) {
         var t = teams[id];
         if (!t) return "";
@@ -650,14 +691,16 @@
           '" data-claim="' +
           esc(id) +
           '" ' +
-          (taken || state.busy ? "disabled" : "") +
+          (state.busy ? "disabled" : "") +
           ">" +
           "<strong>" +
           esc(t.name) +
           "</strong>" +
           '<span class="fd-seat-meta">' +
           (taken
-            ? "Claimed by " + esc(t.owner || "—")
+            ? "Claimed by " +
+              esc(t.owner || "—") +
+              " — tap to rejoin this seat"
             : id === "tgr"
               ? "Claim as George / TGR"
               : "Open — your name becomes the team name") +
@@ -671,7 +714,7 @@
       "<h2>Join the <em>draft</em></h2>" +
       '<p class="fd-muted">4 managers · 5 fighters · snake · same-bout rule. Room code default <code>' +
       esc(ROOM_CODE) +
-      "</code>.</p>" +
+      "</code>. Already claimed a seat? Tap it again to rejoin the lobby (Start lives there).</p>" +
       (state.error ? '<p class="fd-error" role="alert">' + esc(state.error) + "</p>" : "") +
       '<label class="fd-field"><span>Display name</span>' +
       '<input id="fd-name" type="text" maxlength="40" autocomplete="nickname" placeholder="Your name" value="' +
@@ -693,7 +736,9 @@
   function renderLobby() {
     var d = state.draft;
     var teams = d.teams || {};
-    var rows = ["tgr", "open1", "open2", "open3"]
+    var missing = unclaimedSeats(d);
+    var canStart = missing.length === 0;
+    var rows = seatIds()
       .map(function (id) {
         var t = teams[id];
         var you = state.session.teamId === id ? ' <span class="fd-you">YOU</span>' : "";
@@ -711,6 +756,46 @@
       })
       .join("");
 
+    var waitMsg = "";
+    if (state.spectator) {
+      waitMsg =
+        '<p class="fd-muted" role="status">You are spectating — Start is only for managers. Use <strong>Back</strong>, then tap your claimed seat to <strong>rejoin</strong>.</p>';
+    } else if (!canStart) {
+      waitMsg =
+        '<p class="fd-muted" role="status">Start unlocks when all 4 seats are claimed. Still waiting on <strong>' +
+        esc(
+          missing
+            .map(function (id) {
+              return seatLabel(d, id);
+            })
+            .join(", ")
+        ) +
+        "</strong> (" +
+        missing.length +
+        " open). Snake draft stalls if you start with empty seats.</p>";
+    } else {
+      waitMsg =
+        '<p class="fd-muted">All seats claimed. Snake order: ' +
+        esc(
+          (d.meta.snakeOrder || []).map(function (id) {
+            return (teams[id] && teams[id].name) || id;
+          }).join(" → ")
+        ) +
+        ".</p>";
+    }
+
+    var startBtn = "";
+    if (state.spectator) {
+      startBtn = "";
+    } else {
+      startBtn =
+        '<button type="button" class="fd-btn primary" id="fd-start"' +
+        (state.busy || !canStart ? " disabled" : "") +
+        (canStart
+          ? ">Start draft</button>"
+          : ">Start draft (waiting for " + missing.length + " seat" + (missing.length === 1 ? "" : "s") + ")</button>");
+    }
+
     return (
       '<section class="fd-panel fd-lobby">' +
       "<h2>Draft <em>lobby</em></h2>" +
@@ -718,17 +803,9 @@
       '<ul class="fd-lobby-teams">' +
       rows +
       "</ul>" +
-      '<p class="fd-muted">Anyone can press Start for this pilot. Snake order: ' +
-      esc((d.meta.snakeOrder || []).map(function (id) {
-        return (teams[id] && teams[id].name) || id;
-      }).join(" → ")) +
-      ".</p>" +
+      waitMsg +
       '<div class="fd-join-actions">' +
-      (state.spectator
-        ? ""
-        : '<button type="button" class="fd-btn primary" id="fd-start"' +
-          (state.busy ? " disabled" : "") +
-          ">Start draft</button>") +
+      startBtn +
       '<button type="button" class="fd-btn ghost" id="fd-leave">Back</button>' +
       "</div></section>"
     );
