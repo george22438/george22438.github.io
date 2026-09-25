@@ -11,6 +11,7 @@
   var DRAFT_PATH = "drafts/vegas121";
   var TOTAL_PICKS = 20;
   var SLOTS = 5;
+  var PICK_SECONDS = 90;
   var LS_KEY = "tgr-draft-vegas121-v1";
   var LS_SESSION = "tgr-draft-session-v1";
 
@@ -30,6 +31,9 @@
   DRAFT_PATH = window.__TGR_DRAFT_PATH__ || DRAFT_PATH;
   var FIREBASE_READY = !!window.__TGR_FIREBASE_READY__;
   var CONFIG = window.__TGR_FIREBASE_CONFIG__ || {};
+  if (SEED.format && Number(SEED.format.pickSeconds) > 0) {
+    PICK_SECONDS = Number(SEED.format.pickSeconds);
+  }
 
   var state = {
     mode: "join", // join | lobby | drafting | complete
@@ -37,10 +41,12 @@
     session: loadSession(),
     pendingFighter: null,
     busy: false,
+    expireBusy: false,
     error: "",
     spectator: false,
     clientId: null,
   };
+  var timerUiInterval = null;
 
   state.clientId = state.session.clientId || makeId("c");
   state.session.clientId = state.clientId;
@@ -168,6 +174,7 @@
     if (d.meta.round == null) d.meta.round = 1;
     if (d.meta.pickIndex == null) d.meta.pickIndex = 0;
     if (d.meta.version == null) d.meta.version = 0;
+    if (d.meta.pickSeconds == null) d.meta.pickSeconds = PICK_SECONDS;
     if (!d.meta.draftLockAt && SEED.draftLock) d.meta.draftLockAt = SEED.draftLock;
     if (!Array.isArray(d.meta.snakeOrder) || !d.meta.snakeOrder.length) {
       d.meta.snakeOrder = (SEED.draftOrder || ["tgr", "open1", "open2", "open3"]).slice();
@@ -193,7 +200,7 @@
       teams[t.id] = emptyTeam(
         t.id,
         t.name,
-        t.manager || "",
+        t.coach || t.manager || "",
         t.id === "tgr" ? false : false
       );
       // Pilot: TGR pretends reserved but must still be claimed at join (no password).
@@ -224,6 +231,8 @@
         snakeOrder: order,
         round: 1,
         pickIndex: 0,
+        pickSeconds: PICK_SECONDS,
+        pickDeadlineMs: null,
         version: 1,
       },
       teams: teams,
@@ -425,12 +434,74 @@
     d.meta.status = "drafting";
     d.meta.round = 1;
     d.meta.pickIndex = 0;
+    d.meta.pickSeconds = PICK_SECONDS;
+    d.meta.pickStartedAt = now();
+    d.meta.pickDeadlineMs = now() + PICK_SECONDS * 1000;
     d.meta.updatedAt = now();
     d.meta.version = (d.meta.version || 0) + 1;
     return { ok: true };
   }
 
-  function applyPick(d, teamId, fighterId, expectedPickIndex) {
+  function legalFightersForTeam(d, teamId) {
+    var team = d.teams[teamId];
+    if (!team) return [];
+    var rosterBouts = {};
+    (team.roster || []).forEach(function (rid) {
+      if (!rid) return;
+      var rf = d.pool[rid];
+      if (rf && rf.boutId) rosterBouts[rf.boutId] = true;
+    });
+    var list = [];
+    Object.keys(d.pool || {}).forEach(function (fid) {
+      var f = d.pool[fid];
+      if (!f || !f.available) return;
+      if (f.boutId && rosterBouts[f.boutId]) return;
+      list.push(f);
+    });
+    return list;
+  }
+
+  function chooseAutoPick(d, teamId) {
+    var legal = legalFightersForTeam(d, teamId);
+    if (!legal.length) return null;
+    // Sort + seeded index so Firebase transaction retries stay idempotent
+    // for the same pickIndex/version (still varies across picks).
+    legal.sort(function (a, b) {
+      if (a.id < b.id) return -1;
+      if (a.id > b.id) return 1;
+      return 0;
+    });
+    var seed =
+      ((d.meta && d.meta.pickIndex) || 0) * 31 +
+      ((d.meta && d.meta.version) || 0) * 17 +
+      String(teamId || "").length * 13;
+    var idx = Math.abs(seed) % legal.length;
+    return legal[idx].id;
+  }
+
+  function armPickClock(d, ts) {
+    ts = ts || now();
+    d.meta.pickSeconds = PICK_SECONDS;
+    d.meta.pickStartedAt = ts;
+    d.meta.pickDeadlineMs = ts + PICK_SECONDS * 1000;
+  }
+
+  function advanceAfterPick(d, ts) {
+    d.meta.pickIndex += 1;
+    d.meta.round = Math.min(SLOTS, Math.floor(d.meta.pickIndex / d.meta.snakeOrder.length) + 1);
+    d.meta.updatedAt = ts;
+    d.meta.version = (d.meta.version || 0) + 1;
+    if (d.meta.pickIndex >= TOTAL_PICKS) {
+      d.meta.status = "complete";
+      d.meta.pickDeadlineMs = null;
+      d.meta.pickStartedAt = null;
+    } else {
+      armPickClock(d, ts);
+    }
+  }
+
+  function applyPick(d, teamId, fighterId, expectedPickIndex, opts) {
+    opts = opts || {};
     if (!d) return { ok: false, error: "No draft" };
     if (d.meta.status !== "drafting") return { ok: false, error: "Draft not in progress" };
     if (typeof expectedPickIndex === "number" && d.meta.pickIndex !== expectedPickIndex) {
@@ -460,20 +531,81 @@
     var ts = now();
     team.roster[slot] = fighterId;
     if (!team.picks) team.picks = [];
-    team.picks.push({ fighterId: fighterId, pickNumber: pickNumber, ts: ts });
+    team.picks.push({
+      fighterId: fighterId,
+      pickNumber: pickNumber,
+      ts: ts,
+      auto: !!opts.auto,
+    });
     fighter.available = false;
     if (!d.log) d.log = [];
-    d.log.push({ pickNumber: pickNumber, teamId: teamId, fighterId: fighterId, ts: ts });
+    d.log.push({
+      pickNumber: pickNumber,
+      teamId: teamId,
+      fighterId: fighterId,
+      ts: ts,
+      auto: !!opts.auto,
+    });
 
-    d.meta.pickIndex += 1;
-    d.meta.round = Math.min(SLOTS, Math.floor(d.meta.pickIndex / d.meta.snakeOrder.length) + 1);
-    d.meta.updatedAt = ts;
-    d.meta.version = (d.meta.version || 0) + 1;
-
-    if (d.meta.pickIndex >= TOTAL_PICKS) {
-      d.meta.status = "complete";
-    }
+    advanceAfterPick(d, ts);
     return { ok: true };
+  }
+
+  /** Skip / pass current pick (no legal fighter). Advances snake + resets clock. */
+  function applySkip(d, teamId, expectedPickIndex, opts) {
+    opts = opts || {};
+    if (!d) return { ok: false, error: "No draft" };
+    if (d.meta.status !== "drafting") return { ok: false, error: "Draft not in progress" };
+    if (typeof expectedPickIndex === "number" && d.meta.pickIndex !== expectedPickIndex) {
+      return { ok: false, error: "Pick already taken — refresh" };
+    }
+    var onClock = teamForPick(d.meta.snakeOrder, d.meta.pickIndex);
+    if (onClock !== teamId) return { ok: false, error: "Not your turn" };
+    var team = d.teams[teamId];
+    if (!team) return { ok: false, error: "Team missing" };
+
+    var pickNumber = d.meta.pickIndex + 1;
+    var ts = now();
+    if (!d.log) d.log = [];
+    d.log.push({
+      pickNumber: pickNumber,
+      teamId: teamId,
+      fighterId: null,
+      skipped: true,
+      auto: !!opts.auto,
+      ts: ts,
+      note: "Auto-skip — no legal fighter left (same-bout / pool empty)",
+    });
+    advanceAfterPick(d, ts);
+    return { ok: true };
+  }
+
+  /**
+   * Commit auto-pick or skip when pickDeadlineMs has passed.
+   * Safe inside Firebase transactions — only one client wins.
+   */
+  function applyDeadlineExpiry(d) {
+    if (!d || !d.meta || d.meta.status !== "drafting") {
+      return { ok: false, error: "Not drafting" };
+    }
+    var deadline = Number(d.meta.pickDeadlineMs);
+    if (!deadline || !Number.isFinite(deadline)) {
+      // Legacy draft without a clock — arm one and wait.
+      armPickClock(d, now());
+      d.meta.updatedAt = now();
+      d.meta.version = (d.meta.version || 0) + 1;
+      return { ok: true, armed: true };
+    }
+    if (now() < deadline) return { ok: false, error: "Clock still running" };
+
+    var teamId = teamForPick(d.meta.snakeOrder, d.meta.pickIndex);
+    if (!teamId) return { ok: false, error: "No team on clock" };
+    var expected = d.meta.pickIndex;
+    var fighterId = chooseAutoPick(d, teamId);
+    if (fighterId) {
+      return applyPick(d, teamId, fighterId, expected, { auto: true });
+    }
+    return applySkip(d, teamId, expected, { auto: true });
   }
 
   /* ---------- UI actions ---------- */
@@ -486,6 +618,83 @@
       ts: now(),
     };
     adapter.setPresence(state.clientId, payload).catch(function () {});
+  }
+
+  function tryAutoExpire() {
+    var d = state.draft;
+    if (!adapter || !d || !d.meta || d.meta.status !== "drafting") return;
+    var deadline = Number(d.meta.pickDeadlineMs);
+    if (!deadline || !Number.isFinite(deadline)) {
+      // Arm missing clock via transaction (legacy rooms).
+      if (state.expireBusy) return;
+      state.expireBusy = true;
+      adapter
+        .transaction(function (cur) {
+          if (!cur) return;
+          var res = applyDeadlineExpiry(cur);
+          if (!res.ok && !res.armed) return;
+          return cur;
+        })
+        .then(function () {
+          state.expireBusy = false;
+        })
+        .catch(function () {
+          state.expireBusy = false;
+        });
+      return;
+    }
+    if (now() < deadline) return;
+    if (state.expireBusy) return;
+    state.expireBusy = true;
+    var expected = d.meta.pickIndex;
+    adapter
+      .transaction(function (cur) {
+        if (!cur) return;
+        // Only commit if still on the same pick and past deadline.
+        if (!cur.meta || cur.meta.status !== "drafting") return;
+        if (cur.meta.pickIndex !== expected) return;
+        var res = applyDeadlineExpiry(cur);
+        if (!res.ok) return;
+        return cur;
+      })
+      .then(function () {
+        state.expireBusy = false;
+      })
+      .catch(function () {
+        state.expireBusy = false;
+      });
+  }
+
+  function remainingPickMs(d) {
+    if (!d || !d.meta || d.meta.status !== "drafting") return null;
+    var deadline = Number(d.meta.pickDeadlineMs);
+    if (!deadline || !Number.isFinite(deadline)) return PICK_SECONDS * 1000;
+    return Math.max(0, deadline - now());
+  }
+
+  function formatClock(ms) {
+    var sec = Math.ceil(ms / 1000);
+    if (sec < 0) sec = 0;
+    var m = Math.floor(sec / 60);
+    var s = sec % 60;
+    return m + ":" + (s < 10 ? "0" : "") + s;
+  }
+
+  function updateTimerDom() {
+    var el = document.getElementById("fd-pick-timer");
+    var d = state.draft;
+    if (!el || !d || !d.meta || d.meta.status !== "drafting") return;
+    var left = remainingPickMs(d);
+    if (left == null) return;
+    el.textContent = formatClock(left);
+    el.classList.toggle("urgent", left <= 15000);
+    el.classList.toggle("expired", left <= 0);
+    if (left <= 0) tryAutoExpire();
+  }
+
+  function ensureTimerLoop() {
+    if (timerUiInterval) return;
+    timerUiInterval = setInterval(updateTimerDom, 250);
   }
 
   function onDraftUpdate(draft) {
@@ -505,6 +714,11 @@
       else state.mode = "lobby";
     } else {
       state.mode = "join";
+    }
+    if (st === "drafting") {
+      ensureTimerLoop();
+      // If deadline already passed when we learn about this pick, race to commit.
+      tryAutoExpire();
     }
     render();
   }
@@ -537,7 +751,7 @@
       return;
     }
     // Pilot: claimed seats can be rejoined (no password). Back / new device
-    // used to trap managers on the join screen with only "Watch as spectator".
+    // used to trap coaches on the join screen with only "Watch as spectator".
     var existing = state.draft && state.draft.teams && state.draft.teams[teamId];
     if (existing && existing.claimed) {
       state.spectator = false;
@@ -712,7 +926,7 @@
     return (
       '<section class="fd-panel fd-join">' +
       "<h2>Join the <em>draft</em></h2>" +
-      '<p class="fd-muted">4 managers · 5 fighters · snake · same-bout rule. Room code default <code>' +
+      '<p class="fd-muted">4 coaches · 5 fighters · snake · 90s pick clock · same-bout rule. Room code default <code>' +
       esc(ROOM_CODE) +
       "</code>. Already claimed a seat? Tap it again to rejoin the lobby (Start lives there).</p>" +
       (state.error ? '<p class="fd-error" role="alert">' + esc(state.error) + "</p>" : "") +
@@ -759,7 +973,7 @@
     var waitMsg = "";
     if (state.spectator) {
       waitMsg =
-        '<p class="fd-muted" role="status">You are spectating — Start is only for managers. Use <strong>Back</strong>, then tap your claimed seat to <strong>rejoin</strong>.</p>';
+        '<p class="fd-muted" role="status">You are spectating — Start is only for coaches. Use <strong>Back</strong>, then tap your claimed seat to <strong>rejoin</strong>.</p>';
     } else if (!canStart) {
       waitMsg =
         '<p class="fd-muted" role="status">Start unlocks when all 4 seats are claimed. Still waiting on <strong>' +
@@ -846,7 +1060,7 @@
             (t.claimed ? "" : " placeholder") +
             '"><header><h3>' +
             esc(t.name) +
-            "</h3><p class=\"fx-mgr\">" +
+            "</h3><p class=\"fx-mgr\">Coach · " +
             esc(t.owner || "Unclaimed") +
             (mine ? " · you" : "") +
             "</p></header><ul class=\"fx-roster\">" +
@@ -944,13 +1158,30 @@
       log
         .map(function (entry) {
           var t = d.teams[entry.teamId];
-          var f = d.pool[entry.fighterId];
-          return (
-            "<li><span class=\"fd-log-num\">#" +
+          var teamName = esc((t && t.name) || entry.teamId);
+          var num =
+            '<span class="fd-log-num">#' +
             esc(String(entry.pickNumber)) +
-            "</span> <strong>" +
-            esc((t && t.name) || entry.teamId) +
-            "</strong> selects <em>" +
+            "</span> ";
+          if (entry.skipped) {
+            return (
+              "<li>" +
+              num +
+              "<strong>" +
+              teamName +
+              "</strong> <em>auto-skip</em> — no legal fighter" +
+              "</li>"
+            );
+          }
+          var f = entry.fighterId ? d.pool[entry.fighterId] : null;
+          return (
+            "<li>" +
+            num +
+            "<strong>" +
+            teamName +
+            "</strong> " +
+            (entry.auto ? "auto-picks" : "selects") +
+            " <em>" +
             esc((f && f.name) || entry.fighterId) +
             "</em></li>"
           );
@@ -985,6 +1216,20 @@
           })()
         : "";
 
+    var leftMs = remainingPickMs(d);
+    var clockHtml =
+      '<div class="fd-timer-wrap" aria-live="polite">' +
+      '<span class="fd-timer-label">Pick clock</span>' +
+      '<span id="fd-pick-timer" class="fd-timer' +
+      (leftMs != null && leftMs <= 15000 ? " urgent" : "") +
+      (leftMs != null && leftMs <= 0 ? " expired" : "") +
+      '">' +
+      esc(formatClock(leftMs != null ? leftMs : PICK_SECONDS * 1000)) +
+      "</span>" +
+      '<span class="fd-timer-sub">' +
+      esc(String(d.meta.pickSeconds || PICK_SECONDS)) +
+      "s per pick · auto-picks if time runs out</span></div>";
+
     return (
       '<section class="fd-panel fd-board">' +
       '<div class="fd-turn-banner' +
@@ -1005,6 +1250,7 @@
           TOTAL_PICKS +
           (state.spectator ? " · Spectating" : "")) +
       "</div>" +
+      clockHtml +
       (state.error ? '<p class="fd-error" role="alert">' + esc(state.error) + "</p>" : "") +
       confirm +
       "<h2>Available <em>fighters</em></h2>" +
@@ -1056,6 +1302,10 @@
 
     appEl.innerHTML = html;
     bind();
+    if (state.mode === "drafting") {
+      ensureTimerLoop();
+      updateTimerDom();
+    }
   }
 
   function bind() {

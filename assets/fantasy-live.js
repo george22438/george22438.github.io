@@ -183,18 +183,26 @@
 
   function renderStandings(data) {
     var list = teamsArray(data);
+    var isFinal = data && data.meta && data.meta.status === "final";
     var rows = list
       .map(function (t, i) {
+        var king =
+          isFinal && i === 0
+            ? '<span class="fx-king-badge" title="Highest-scoring coach">👑 King of The Ring</span>'
+            : "";
         return (
-          "<tr>" +
+          "<tr" +
+          (isFinal && i === 0 ? ' class="fx-king-row"' : "") +
+          ">" +
           '<td class="fx-rank-cell">' +
           (i + 1) +
           "</td>" +
           "<td>" +
           esc(t.name) +
           (t.owner
-            ? '<span class="fx-owner">' + esc(t.owner) + "</span>"
+            ? '<span class="fx-owner">Coach · ' + esc(t.owner) + "</span>"
             : "") +
+          king +
           "</td>" +
           '<td class="fx-pts">' +
           esc(fmtPts(t.points)) +
@@ -224,12 +232,17 @@
           );
         }).join("");
         return (
-          "<tr>" +
+          "<tr" +
+          (isFinal && i === 0 ? ' class="fx-king-row"' : "") +
+          ">" +
           '<td class="fx-rank-cell">' +
           (i + 1) +
           "</td>" +
           "<td>" +
           esc(t.name) +
+          (isFinal && i === 0
+            ? ' <span class="fx-king-badge">👑 King of The Ring</span>'
+            : "") +
           "</td>" +
           cells +
           '<td class="fx-pts">' +
@@ -239,7 +252,21 @@
       })
       .join("");
 
+    var kingCallout = "";
+    if (isFinal && list.length) {
+      kingCallout =
+        '<aside class="fx-king-callout fx-king-winner" role="status">' +
+        '<span class="fx-king-crown" aria-hidden="true">👑</span>' +
+        "<div><strong>King of The Ring</strong><p>" +
+        esc(list[0].name) +
+        (list[0].owner ? " · Coach " + esc(list[0].owner) : "") +
+        " — " +
+        esc(fmtPts(list[0].points)) +
+        " pts</p></div></aside>";
+    }
+
     root.innerHTML =
+      kingCallout +
       '<div class="fx-table-wrap">' +
       '<table class="fx-table fx-standings-live">' +
       "<thead><tr><th>#</th><th>Team</th><th>Points</th></tr></thead>" +
@@ -302,7 +329,7 @@
           esc(t.name) +
           "</h3>" +
           (t.owner
-            ? '<p class="fx-mgr">' + esc(t.owner) + "</p>"
+            ? '<p class="fx-mgr">Coach · ' + esc(t.owner) + "</p>"
             : "") +
           "</header>" +
           '<ul class="fx-roster">' +
@@ -394,7 +421,7 @@
       teams[t.id] = {
         id: t.id,
         name: t.name,
-        owner: t.manager || t.name,
+        owner: t.coach || t.manager || t.name,
         points: t.points || 0,
         breakdown: emptyBreakdown(),
         roster: roster,

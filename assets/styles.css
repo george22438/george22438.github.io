@@ -1219,6 +1219,53 @@ nav a { white-space: nowrap; }
 }
 .fx-team-pts strong { font-family: "Bebas Neue", Impact, sans-serif; font-size: 1.6rem; color: var(--red); font-weight: 400; }
 .fx-rank-cell { font-family: "Bebas Neue", Impact, sans-serif; color: var(--red); font-size: 1.2rem; width: 2rem; }
+.fx-king-callout {
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-start;
+  margin: 1.1rem 0 0;
+  padding: 0.95rem 1.05rem;
+  border-radius: 6px;
+  border: 1px solid rgba(212,160,23,0.55);
+  border-left: 4px solid var(--gold);
+  background: linear-gradient(135deg, rgba(212,160,23,0.16), rgba(20,20,22,0.95) 60%);
+}
+.fx-king-callout strong {
+  display: block;
+  font-family: "Bebas Neue", Impact, sans-serif;
+  font-size: 1.45rem;
+  letter-spacing: 0.05em;
+  color: var(--gold);
+  font-weight: 400;
+}
+.fx-king-callout p {
+  margin: 0.2rem 0 0;
+  color: #e4e4e7;
+  font-size: 0.92rem;
+}
+.fx-king-crown {
+  font-size: 1.6rem;
+  line-height: 1;
+  margin-top: 0.15rem;
+}
+.fx-king-hint { margin: 0 0 0.75rem; }
+.fx-king-badge {
+  display: inline-block;
+  margin-left: 0.45rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #1a1408;
+  background: linear-gradient(135deg, #f5d76e, var(--gold));
+  vertical-align: middle;
+  white-space: nowrap;
+}
+.fx-king-row {
+  background: rgba(212,160,23,0.12);
+}
+.fx-king-row td { border-color: rgba(212,160,23,0.25); }
 .fx-pilot {
   margin-top: 2.5rem;
   padding: 1.1rem 1.15rem;
@@ -1432,6 +1479,39 @@ nav a { white-space: nowrap; }
   border-left-color: var(--red);
   background: linear-gradient(135deg, rgba(225,6,0,0.18), rgba(20,20,22,0.95) 60%);
   font-size: 1.2rem;
+}
+.fd-timer-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.45rem 0.85rem;
+  margin: -0.35rem 0 1.15rem;
+  padding: 0.75rem 1.05rem;
+  border-radius: 4px;
+  border: 1px solid rgba(212,160,23,0.45);
+  background: linear-gradient(135deg, rgba(212,160,23,0.14), rgba(20,20,22,0.95) 65%);
+}
+.fd-timer-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.fd-timer {
+  font-family: "Bebas Neue", Impact, sans-serif;
+  font-size: 2.1rem;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  color: #fff;
+  min-width: 3.2rem;
+}
+.fd-timer.urgent { color: #fecaca; }
+.fd-timer.expired { color: var(--red); }
+.fd-timer-sub {
+  font-size: 0.82rem;
+  color: var(--muted);
+  flex: 1 1 10rem;
 }
 .fd-confirm {
   background: rgba(225,6,0,0.12);
