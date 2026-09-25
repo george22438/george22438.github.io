@@ -4,18 +4,18 @@
  */
 (function (w) {
   w.__TGR_FIREBASE_CONFIG__ = {
-  "apiKey": "",
-  "authDomain": "",
-  "databaseURL": "",
-  "projectId": "",
-  "storageBucket": "",
-  "messagingSenderId": "",
-  "appId": ""
+  "apiKey": "AIzaSyAp35HRmrLS4LP5bdBJicTReVj-sQn_ij4",
+  "authDomain": "garcia-report-fantasy.firebaseapp.com",
+  "databaseURL": "https://garcia-report-fantasy-default-rtdb.firebaseio.com",
+  "projectId": "garcia-report-fantasy",
+  "storageBucket": "garcia-report-fantasy.firebasestorage.app",
+  "messagingSenderId": "473199676465",
+  "appId": "1:473199676465:web:d6ddbe9c1a24c4f8f69910"
 };
   w.__TGR_DRAFT_ROOM_CODE__ = "GARCIA121";
   w.__TGR_DRAFT_PATH__ = "drafts/vegas121";
   var c = w.__TGR_FIREBASE_CONFIG__;
-  w.__TGR_FIREBASE_READY__ = false && !!(
+  w.__TGR_FIREBASE_READY__ = true && !!(
     c && c.apiKey && c.databaseURL &&
     String(c.apiKey).length > 10 &&
     String(c.databaseURL).indexOf("firebaseio.com") !== -1
