@@ -159,8 +159,8 @@
         var labels = {
           tgr: ["The Garcia Report", "George Garcia"],
           open1: ["Ferm20", "Ferm20"],
-          open2: ["Open Spot 2", ""],
-          open3: ["Open Spot 3", ""],
+          open2: ["Rajmamba24", "Rajmamba24"],
+          open3: ["BigFermPussyLips7", "BigFermPussyLips7"],
         };
         var L = labels[id] || [id, ""];
         teams[id] = emptyTeam(id, L[0], L[1], false);
