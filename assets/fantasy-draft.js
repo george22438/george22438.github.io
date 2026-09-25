@@ -137,6 +137,55 @@
     };
   }
 
+
+  function ensureTeamShape(id, t) {
+    var labels = {
+      tgr: ["The Garcia Report", "George Garcia"],
+      open1: ["Ferm20", "Ferm20"],
+      open2: ["Rajmamba24", "Rajmamba24"],
+      open3: ["BigFermPussyLips7", "BigFermPussyLips7"],
+    };
+    var L = labels[id] || [id, ""];
+    if (!t) return emptyTeam(id, L[0], L[1], false);
+    t.id = t.id || id;
+    if (!t.name) t.name = L[0];
+    if (t.owner == null) t.owner = L[1];
+    if (typeof t.claimed !== "boolean") t.claimed = false;
+    if (!Array.isArray(t.roster) || t.roster.length !== 5) {
+      t.roster = [null, null, null, null, null];
+    }
+    if (!Array.isArray(t.picks)) t.picks = [];
+    return t;
+  }
+
+  function normalizeDraft(d) {
+    if (!d || typeof d !== "object") return createInitialDraft();
+    if (!d.meta || typeof d.meta !== "object") d.meta = {};
+    if (!d.meta.leagueName) {
+      d.meta.leagueName = SEED.leagueName || "Garcia Report Fantasy — UFC Vegas 121";
+    }
+    if (!d.meta.status) d.meta.status = "lobby";
+    if (d.meta.round == null) d.meta.round = 1;
+    if (d.meta.pickIndex == null) d.meta.pickIndex = 0;
+    if (d.meta.version == null) d.meta.version = 0;
+    if (!d.meta.draftLockAt && SEED.draftLock) d.meta.draftLockAt = SEED.draftLock;
+    if (!Array.isArray(d.meta.snakeOrder) || !d.meta.snakeOrder.length) {
+      d.meta.snakeOrder = (SEED.draftOrder || ["tgr", "open1", "open2", "open3"]).slice();
+    }
+    if (!d.teams || typeof d.teams !== "object") d.teams = {};
+    ["tgr", "open1", "open2", "open3"].forEach(function (id) {
+      d.teams[id] = ensureTeamShape(id, d.teams[id]);
+    });
+    // Keep TGR display name stable until claimed.
+    if (!d.teams.tgr.claimed) {
+      d.teams.tgr.name = "The Garcia Report";
+      if (!d.teams.tgr.owner) d.teams.tgr.owner = "George Garcia";
+    }
+    if (!Array.isArray(d.log)) d.log = [];
+    if (!d.pool) d.pool = buildPoolFromSeed();
+    return d;
+  }
+
   function createInitialDraft() {
     var order = (SEED.draftOrder || ["tgr", "open1", "open2", "open3"]).slice();
     var teams = {};
@@ -286,7 +335,7 @@
           cb(init);
           return;
         }
-        cb(val);
+        cb(normalizeDraft(val));
       },
       function (err) {
         state.error = (err && err.message) || "Firebase connection error";
@@ -297,7 +346,7 @@
 
   FirebaseAdapter.prototype.transaction = function (updater) {
     return this.ref.transaction(function (current) {
-      if (current === null) current = createInitialDraft();
+      current = normalizeDraft(current);
       return updater(current);
     });
   };
