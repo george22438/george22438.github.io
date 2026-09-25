@@ -158,7 +158,7 @@
       if (!teams[id]) {
         var labels = {
           tgr: ["The Garcia Report", "George Garcia"],
-          open1: ["Open Spot 1", ""],
+          open1: ["Ferm20", "Ferm20"],
           open2: ["Open Spot 2", ""],
           open3: ["Open Spot 3", ""],
         };
