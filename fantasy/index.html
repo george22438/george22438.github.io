@@ -73,11 +73,110 @@
       <p class="fx-meta"><strong>UFC Fight Night: Rosas Jr. vs Barcelos</strong> · UFC Vegas 121 · Sat Sep 26, 2026 · Meta APEX, Las Vegas</p>
       <p class="fx-meta">Prelims 2:00 PM PT · Main card 5:00 PM PT</p>
       <p class="fx-format">4 managers · 5 fighters each · snake draft</p>
-      <div class="fx-cta-draft">
-        <a class="fd-btn primary" href="/fantasy/draft/">Enter live draft</a>
-        <p><strong>On-site snake draft</strong> for this card. Room code <code>GARCIA121</code>. Claim a seat or spectate. Standings below update live once scoring is written to Firebase.</p>
-        <span id="fd-live-status" hidden></span>
+    </div>
+
+    <section class="fx-section" id="standings" aria-labelledby="fx-standings-title">
+      <div class="fx-standings-head">
+        <h2 id="fx-standings-title">Standings</h2>
+        <div class="fx-live-meta">
+          <span id="fx-live-badge" class="fx-live-badge connecting" hidden>Connecting…</span>
+          <span id="fx-live-status-label" class="fx-live-status"></span>
+          <span id="fx-live-updated" class="fx-live-updated"></span>
+        </div>
       </div>
+      <div id="fx-live-standings">
+        <div class="fx-table-wrap">
+          <table class="fx-table">
+            <thead><tr><th>#</th><th>Team</th><th>Points</th></tr></thead>
+            <tbody>
+              <tr><td class="fx-rank-cell">1</td><td>The Garcia Report</td><td class="fx-pts">0</td></tr>
+            <tr><td class="fx-rank-cell">2</td><td>Ferm20</td><td class="fx-pts">0</td></tr>
+            <tr><td class="fx-rank-cell">3</td><td>Rajmamba24</td><td class="fx-pts">0</td></tr>
+            <tr><td class="fx-rank-cell">4</td><td>BigFermPussyLips7</td><td class="fx-pts">0</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="fx-cat-board">
+        <h3>Points by category</h3>
+        <p class="fx-muted fx-cat-legend">DEC decision · KO finish · SUB submission · DRW draw · KD knockdown · TD takedown · SS sig. strikes · FOTN / POTN bonuses</p>
+        <div class="fx-table-wrap fx-cat-scroll">
+          <table class="fx-table fx-cat-table">
+            <thead><tr><th>#</th><th>Team</th><th title="Decision">DEC</th><th title="KO/TKO">KO</th><th title="Submission">SUB</th><th title="Draw">DRW</th><th title="Knockdown">KD</th><th title="Takedown">TD</th><th title="Sig. strikes">SS</th><th title="Fight of Night">FOTN</th><th title="Perf. of Night">POTN</th><th>Total</th></tr></thead>
+            <tbody>
+              <tr><td class="fx-rank-cell">1</td><td>The Garcia Report</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-pts">0</td></tr>
+            <tr><td class="fx-rank-cell">2</td><td>Ferm20</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-pts">0</td></tr>
+            <tr><td class="fx-rank-cell">3</td><td>Rajmamba24</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-pts">0</td></tr>
+            <tr><td class="fx-rank-cell">4</td><td>BigFermPussyLips7</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-pts">0</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+        <p class="fx-muted">Category columns stay at 0 until live scoring. Open this page during the card for realtime updates.</p>
+      </div>
+      <div id="fx-live-feed" class="fx-live-feed" hidden></div>
+    </section>
+
+    <section class="fx-section" id="teams" aria-labelledby="fx-teams-title">
+      <h2 id="fx-teams-title">Teams</h2>
+      <div id="fx-live-teams">
+        <p class="fx-muted fx-live-teams-intro">Rosters fill after the draft. Slots show Round 1–5. Live points update here once scoring starts.</p>
+        <div class="fx-teams-grid">
+          <article class="fx-team-card">
+          <header><h3>The Garcia Report</h3><p class="fx-mgr">George Garcia</p></header>
+          <ul class="fx-roster">
+            <li><span class="fx-round">R1</span><span class="fx-empty">—</span></li>
+            <li><span class="fx-round">R2</span><span class="fx-empty">—</span></li>
+            <li><span class="fx-round">R3</span><span class="fx-empty">—</span></li>
+            <li><span class="fx-round">R4</span><span class="fx-empty">—</span></li>
+            <li><span class="fx-round">R5</span><span class="fx-empty">—</span></li>
+          </ul>
+          <div class="fx-team-pts"><span>Points</span><strong>0</strong></div>
+          <ul class="fx-breakdown" aria-label="Points by category"><li class="fx-cat"><span class="fx-cat-label">Decision</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">KO/TKO</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Submission</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Draw</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Knockdown</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Takedown</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Sig. strikes</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Fight of Night</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Perf. of Night</span><span class="fx-cat-pts">0</span></li></ul>
+        </article>
+        <article class="fx-team-card">
+          <header><h3>Ferm20</h3><p class="fx-mgr">Ferm20</p></header>
+          <ul class="fx-roster">
+            <li><span class="fx-round">R1</span><span class="fx-empty">—</span></li>
+            <li><span class="fx-round">R2</span><span class="fx-empty">—</span></li>
+            <li><span class="fx-round">R3</span><span class="fx-empty">—</span></li>
+            <li><span class="fx-round">R4</span><span class="fx-empty">—</span></li>
+            <li><span class="fx-round">R5</span><span class="fx-empty">—</span></li>
+          </ul>
+          <div class="fx-team-pts"><span>Points</span><strong>0</strong></div>
+          <ul class="fx-breakdown" aria-label="Points by category"><li class="fx-cat"><span class="fx-cat-label">Decision</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">KO/TKO</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Submission</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Draw</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Knockdown</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Takedown</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Sig. strikes</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Fight of Night</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Perf. of Night</span><span class="fx-cat-pts">0</span></li></ul>
+        </article>
+        <article class="fx-team-card">
+          <header><h3>Rajmamba24</h3><p class="fx-mgr">Rajmamba24</p></header>
+          <ul class="fx-roster">
+            <li><span class="fx-round">R1</span><span class="fx-empty">—</span></li>
+            <li><span class="fx-round">R2</span><span class="fx-empty">—</span></li>
+            <li><span class="fx-round">R3</span><span class="fx-empty">—</span></li>
+            <li><span class="fx-round">R4</span><span class="fx-empty">—</span></li>
+            <li><span class="fx-round">R5</span><span class="fx-empty">—</span></li>
+          </ul>
+          <div class="fx-team-pts"><span>Points</span><strong>0</strong></div>
+          <ul class="fx-breakdown" aria-label="Points by category"><li class="fx-cat"><span class="fx-cat-label">Decision</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">KO/TKO</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Submission</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Draw</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Knockdown</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Takedown</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Sig. strikes</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Fight of Night</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Perf. of Night</span><span class="fx-cat-pts">0</span></li></ul>
+        </article>
+        <article class="fx-team-card">
+          <header><h3>BigFermPussyLips7</h3><p class="fx-mgr">BigFermPussyLips7</p></header>
+          <ul class="fx-roster">
+            <li><span class="fx-round">R1</span><span class="fx-empty">—</span></li>
+            <li><span class="fx-round">R2</span><span class="fx-empty">—</span></li>
+            <li><span class="fx-round">R3</span><span class="fx-empty">—</span></li>
+            <li><span class="fx-round">R4</span><span class="fx-empty">—</span></li>
+            <li><span class="fx-round">R5</span><span class="fx-empty">—</span></li>
+          </ul>
+          <div class="fx-team-pts"><span>Points</span><strong>0</strong></div>
+          <ul class="fx-breakdown" aria-label="Points by category"><li class="fx-cat"><span class="fx-cat-label">Decision</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">KO/TKO</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Submission</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Draw</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Knockdown</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Takedown</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Sig. strikes</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Fight of Night</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Perf. of Night</span><span class="fx-cat-pts">0</span></li></ul>
+        </article>
+        </div>
+      </div>
+    </section>
+
+    <div class="fx-cta-draft">
+      <a class="fd-btn primary" href="/fantasy/draft/">Enter live draft</a>
+      <p><strong>On-site snake draft</strong> for this card. Room code <code>GARCIA121</code>. Claim a seat or spectate. Standings above update live once scoring is written to Firebase.</p>
+      <span id="fd-live-status" hidden></span>
     </div>
 
     <section class="fx-section" id="how-it-works" aria-labelledby="fx-how-title">
@@ -415,104 +514,6 @@
         <li>Dumont vs Pérez listed on the main card on UFC.com (#4 vs #5 Women's Bantamweight).</li>
         <li>Open Spot eligibility = every fighter on this card.</li>
       </ul>
-    </section>
-
-    <section class="fx-section" id="standings" aria-labelledby="fx-standings-title">
-      <div class="fx-standings-head">
-        <h2 id="fx-standings-title">Standings</h2>
-        <div class="fx-live-meta">
-          <span id="fx-live-badge" class="fx-live-badge connecting" hidden>Connecting…</span>
-          <span id="fx-live-status-label" class="fx-live-status"></span>
-          <span id="fx-live-updated" class="fx-live-updated"></span>
-        </div>
-      </div>
-      <div id="fx-live-standings">
-        <div class="fx-table-wrap">
-          <table class="fx-table">
-            <thead><tr><th>#</th><th>Team</th><th>Points</th></tr></thead>
-            <tbody>
-              <tr><td class="fx-rank-cell">1</td><td>The Garcia Report</td><td class="fx-pts">0</td></tr>
-            <tr><td class="fx-rank-cell">2</td><td>Ferm20</td><td class="fx-pts">0</td></tr>
-            <tr><td class="fx-rank-cell">3</td><td>Rajmamba24</td><td class="fx-pts">0</td></tr>
-            <tr><td class="fx-rank-cell">4</td><td>BigFermPussyLips7</td><td class="fx-pts">0</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="fx-cat-board">
-        <h3>Points by category</h3>
-        <p class="fx-muted fx-cat-legend">DEC decision · KO finish · SUB submission · DRW draw · KD knockdown · TD takedown · SS sig. strikes · FOTN / POTN bonuses</p>
-        <div class="fx-table-wrap fx-cat-scroll">
-          <table class="fx-table fx-cat-table">
-            <thead><tr><th>#</th><th>Team</th><th title="Decision">DEC</th><th title="KO/TKO">KO</th><th title="Submission">SUB</th><th title="Draw">DRW</th><th title="Knockdown">KD</th><th title="Takedown">TD</th><th title="Sig. strikes">SS</th><th title="Fight of Night">FOTN</th><th title="Perf. of Night">POTN</th><th>Total</th></tr></thead>
-            <tbody>
-              <tr><td class="fx-rank-cell">1</td><td>The Garcia Report</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-pts">0</td></tr>
-            <tr><td class="fx-rank-cell">2</td><td>Ferm20</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-pts">0</td></tr>
-            <tr><td class="fx-rank-cell">3</td><td>Rajmamba24</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-pts">0</td></tr>
-            <tr><td class="fx-rank-cell">4</td><td>BigFermPussyLips7</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-cat-cell">0</td><td class="fx-pts">0</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-        <p class="fx-muted">Category columns stay at 0 until live scoring. Open this page during the card for realtime updates.</p>
-      </div>
-      <div id="fx-live-feed" class="fx-live-feed" hidden></div>
-    </section>
-
-    <section class="fx-section" id="teams" aria-labelledby="fx-teams-title">
-      <h2 id="fx-teams-title">Teams</h2>
-      <div id="fx-live-teams">
-        <p class="fx-muted fx-live-teams-intro">Rosters fill after the draft. Slots show Round 1–5. Live points update here once scoring starts.</p>
-        <div class="fx-teams-grid">
-          <article class="fx-team-card">
-          <header><h3>The Garcia Report</h3><p class="fx-mgr">George Garcia</p></header>
-          <ul class="fx-roster">
-            <li><span class="fx-round">R1</span><span class="fx-empty">—</span></li>
-            <li><span class="fx-round">R2</span><span class="fx-empty">—</span></li>
-            <li><span class="fx-round">R3</span><span class="fx-empty">—</span></li>
-            <li><span class="fx-round">R4</span><span class="fx-empty">—</span></li>
-            <li><span class="fx-round">R5</span><span class="fx-empty">—</span></li>
-          </ul>
-          <div class="fx-team-pts"><span>Points</span><strong>0</strong></div>
-          <ul class="fx-breakdown" aria-label="Points by category"><li class="fx-cat"><span class="fx-cat-label">Decision</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">KO/TKO</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Submission</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Draw</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Knockdown</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Takedown</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Sig. strikes</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Fight of Night</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Perf. of Night</span><span class="fx-cat-pts">0</span></li></ul>
-        </article>
-        <article class="fx-team-card">
-          <header><h3>Ferm20</h3><p class="fx-mgr">Ferm20</p></header>
-          <ul class="fx-roster">
-            <li><span class="fx-round">R1</span><span class="fx-empty">—</span></li>
-            <li><span class="fx-round">R2</span><span class="fx-empty">—</span></li>
-            <li><span class="fx-round">R3</span><span class="fx-empty">—</span></li>
-            <li><span class="fx-round">R4</span><span class="fx-empty">—</span></li>
-            <li><span class="fx-round">R5</span><span class="fx-empty">—</span></li>
-          </ul>
-          <div class="fx-team-pts"><span>Points</span><strong>0</strong></div>
-          <ul class="fx-breakdown" aria-label="Points by category"><li class="fx-cat"><span class="fx-cat-label">Decision</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">KO/TKO</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Submission</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Draw</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Knockdown</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Takedown</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Sig. strikes</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Fight of Night</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Perf. of Night</span><span class="fx-cat-pts">0</span></li></ul>
-        </article>
-        <article class="fx-team-card">
-          <header><h3>Rajmamba24</h3><p class="fx-mgr">Rajmamba24</p></header>
-          <ul class="fx-roster">
-            <li><span class="fx-round">R1</span><span class="fx-empty">—</span></li>
-            <li><span class="fx-round">R2</span><span class="fx-empty">—</span></li>
-            <li><span class="fx-round">R3</span><span class="fx-empty">—</span></li>
-            <li><span class="fx-round">R4</span><span class="fx-empty">—</span></li>
-            <li><span class="fx-round">R5</span><span class="fx-empty">—</span></li>
-          </ul>
-          <div class="fx-team-pts"><span>Points</span><strong>0</strong></div>
-          <ul class="fx-breakdown" aria-label="Points by category"><li class="fx-cat"><span class="fx-cat-label">Decision</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">KO/TKO</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Submission</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Draw</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Knockdown</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Takedown</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Sig. strikes</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Fight of Night</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Perf. of Night</span><span class="fx-cat-pts">0</span></li></ul>
-        </article>
-        <article class="fx-team-card">
-          <header><h3>BigFermPussyLips7</h3><p class="fx-mgr">BigFermPussyLips7</p></header>
-          <ul class="fx-roster">
-            <li><span class="fx-round">R1</span><span class="fx-empty">—</span></li>
-            <li><span class="fx-round">R2</span><span class="fx-empty">—</span></li>
-            <li><span class="fx-round">R3</span><span class="fx-empty">—</span></li>
-            <li><span class="fx-round">R4</span><span class="fx-empty">—</span></li>
-            <li><span class="fx-round">R5</span><span class="fx-empty">—</span></li>
-          </ul>
-          <div class="fx-team-pts"><span>Points</span><strong>0</strong></div>
-          <ul class="fx-breakdown" aria-label="Points by category"><li class="fx-cat"><span class="fx-cat-label">Decision</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">KO/TKO</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Submission</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Draw</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Knockdown</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Takedown</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Sig. strikes</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Fight of Night</span><span class="fx-cat-pts">0</span></li><li class="fx-cat"><span class="fx-cat-label">Perf. of Night</span><span class="fx-cat-pts">0</span></li></ul>
-        </article>
-        </div>
-      </div>
     </section>
 
     <section class="fx-pilot">
