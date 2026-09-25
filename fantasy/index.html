@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../assets/styles.css?v=279b6fb1f3" />
+  <link rel="stylesheet" href="../assets/styles.css?v=21a0a55ed5" />
   <link rel="icon" type="image/png" sizes="64x64" href="/assets/favicon.png?v=3" />
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png?v=3" />
   <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png?v=3" />
@@ -75,7 +75,7 @@
       <p class="fx-format">4 managers · 5 fighters each · snake draft</p>
       <div class="fx-cta-draft">
         <a class="fd-btn primary" href="/fantasy/draft/">Enter live draft</a>
-        <p><strong>On-site snake draft</strong> for this card. Room code <code>GARCIA121</code>. Claim a seat or spectate.</p>
+        <p><strong>On-site snake draft</strong> for this card. Room code <code>GARCIA121</code>. Claim a seat or spectate. Standings below update live once scoring is written to Firebase.</p>
         <span id="fd-live-status" hidden></span>
       </div>
     </div>
@@ -417,11 +417,38 @@
       </ul>
     </section>
 
+    <section class="fx-section" id="standings" aria-labelledby="fx-standings-title">
+      <div class="fx-standings-head">
+        <h2 id="fx-standings-title">Standings</h2>
+        <div class="fx-live-meta">
+          <span id="fx-live-badge" class="fx-live-badge connecting" hidden>Connecting…</span>
+          <span id="fx-live-status-label" class="fx-live-status"></span>
+          <span id="fx-live-updated" class="fx-live-updated"></span>
+        </div>
+      </div>
+      <div id="fx-live-standings">
+        <div class="fx-table-wrap">
+          <table class="fx-table">
+            <thead><tr><th>#</th><th>Team</th><th>Points</th></tr></thead>
+            <tbody>
+              <tr><td class="fx-rank-cell">1</td><td>The Garcia Report</td><td class="fx-pts">0</td></tr>
+            <tr><td class="fx-rank-cell">2</td><td>Ferm20</td><td class="fx-pts">0</td></tr>
+            <tr><td class="fx-rank-cell">3</td><td>Rajmamba24</td><td class="fx-pts">0</td></tr>
+            <tr><td class="fx-rank-cell">4</td><td>BigFermPussyLips7</td><td class="fx-pts">0</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="fx-muted">Points stay at 0 until live scoring. Open this page during the card for realtime updates.</p>
+      </div>
+      <div id="fx-live-feed" class="fx-live-feed" hidden></div>
+    </section>
+
     <section class="fx-section" id="teams" aria-labelledby="fx-teams-title">
       <h2 id="fx-teams-title">Teams</h2>
-      <p class="fx-muted">Rosters empty until draft. Slots show Round 1–5.</p>
-      <div class="fx-teams-grid">
-        <article class="fx-team-card">
+      <div id="fx-live-teams">
+        <p class="fx-muted fx-live-teams-intro">Rosters fill after the draft. Slots show Round 1–5. Live points update here once scoring starts.</p>
+        <div class="fx-teams-grid">
+          <article class="fx-team-card">
           <header><h3>The Garcia Report</h3><p class="fx-mgr">George Garcia</p></header>
           <ul class="fx-roster">
             <li><span class="fx-round">R1</span><span class="fx-empty">—</span></li>
@@ -465,29 +492,15 @@
           </ul>
           <div class="fx-team-pts"><span>Points</span><strong>0</strong></div>
         </article>
+        </div>
       </div>
-    </section>
-
-    <section class="fx-section" id="standings" aria-labelledby="fx-standings-title">
-      <h2 id="fx-standings-title">Standings</h2>
-      <div class="fx-table-wrap">
-        <table class="fx-table">
-          <thead><tr><th>#</th><th>Team</th><th>Points</th></tr></thead>
-          <tbody>
-            <tr><td class="fx-rank-cell">1</td><td>The Garcia Report</td><td class="fx-pts">0</td></tr>
-            <tr><td class="fx-rank-cell">2</td><td>Ferm20</td><td class="fx-pts">0</td></tr>
-            <tr><td class="fx-rank-cell">3</td><td>Rajmamba24</td><td class="fx-pts">0</td></tr>
-            <tr><td class="fx-rank-cell">4</td><td>BigFermPussyLips7</td><td class="fx-pts">0</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <p class="fx-muted">Points stay at 0 until after the card.</p>
     </section>
 
     <section class="fx-pilot">
       <p><strong>Pilot league — first test. Feedback welcome.</strong></p>
       <p>Contact: <a href="mailto:hello@thegarciareport.com?subject=Fantasy%20MMA%20feedback">George / The Garcia Report</a></p>
     </section>
+    <script type="application/json" id="fx-standings-seed">{"leagueName":"Garcia Report Fantasy — UFC Vegas 121","draftOrder":["tgr","open1","open2","open3"],"teams":[{"id":"tgr","name":"The Garcia Report","manager":"George Garcia","points":0,"roster":[null,null,null,null,null]},{"id":"open1","name":"Ferm20","manager":"Ferm20","points":0,"roster":[null,null,null,null,null]},{"id":"open2","name":"Rajmamba24","manager":"Rajmamba24","points":0,"roster":[null,null,null,null,null]},{"id":"open3","name":"BigFermPussyLips7","manager":"BigFermPussyLips7","points":0,"roster":[null,null,null,null,null]}]}</script>
   </main>
 
   <footer>
@@ -523,5 +536,10 @@
   </script>
   <script src="/assets/pwa.js" defer></script>
   
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js" defer></script>
+  <script src="/assets/fantasy-firebase-config.js" defer></script>
+  <script src="/assets/fantasy-live.js" defer></script>
+
 </body>
 </html>

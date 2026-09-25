@@ -14,6 +14,7 @@
 };
   w.__TGR_DRAFT_ROOM_CODE__ = "GARCIA121";
   w.__TGR_DRAFT_PATH__ = "drafts/vegas121";
+  w.__TGR_STANDINGS_PATH__ = "standings/vegas121";
   var c = w.__TGR_FIREBASE_CONFIG__;
   w.__TGR_FIREBASE_READY__ = true && !!(
     c && c.apiKey && c.databaseURL &&

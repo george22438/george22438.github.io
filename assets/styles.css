@@ -1532,3 +1532,130 @@ nav a { white-space: nowrap; }
 .fx-cta-draft p { margin: 0; color: #d4d4d8; font-size: 0.92rem; flex: 1 1 14rem; }
 .fx-cta-draft strong { color: #fff; }
 #fd-live-status { font-size: 0.85rem; color: var(--muted); }
+
+/* ---------- Fantasy live standings ---------- */
+.fx-standings-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.65rem 1rem;
+  margin-bottom: 0.75rem;
+}
+.fx-standings-head h2 { margin: 0; }
+.fx-live-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem 0.75rem;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+.fx-live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.28rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: #d4d4d8;
+}
+.fx-live-badge::before {
+  content: "";
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: #71717a;
+}
+.fx-live-badge.live {
+  border-color: rgba(34, 197, 94, 0.55);
+  color: #bbf7d0;
+  background: rgba(22, 163, 74, 0.18);
+}
+.fx-live-badge.live::before {
+  background: #22c55e;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.25);
+  animation: fx-pulse 1.6s ease-in-out infinite;
+}
+.fx-live-badge.connecting {
+  border-color: rgba(234, 179, 8, 0.45);
+  color: #fde68a;
+}
+.fx-live-badge.connecting::before { background: #eab308; }
+.fx-live-badge.static,
+.fx-live-badge.offline {
+  border-color: var(--border);
+  color: var(--muted);
+}
+@keyframes fx-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+.fx-live-status {
+  font-weight: 600;
+  color: #d4d4d8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.72rem;
+}
+.fx-live-updated { color: var(--muted); }
+.fx-owner {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 0.1rem;
+}
+.fx-slot-pts {
+  margin-left: auto;
+  font-family: "Bebas Neue", Impact, sans-serif;
+  color: var(--red);
+  font-size: 1.05rem;
+  letter-spacing: 0.03em;
+}
+.fx-live-feed {
+  margin-top: 1.1rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--card);
+}
+.fx-live-feed h3 {
+  margin: 0 0 0.5rem;
+  font-family: "Bebas Neue", Impact, sans-serif;
+  letter-spacing: 0.06em;
+  font-size: 1.15rem;
+  font-weight: 400;
+  color: #fff;
+}
+.fx-feed-list {
+  list-style: none;
+  margin: 0;
+  max-height: 12rem;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.fx-feed-list li {
+  padding: 0.45rem 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.88rem;
+  color: #d4d4d8;
+}
+.fx-feed-list li:last-child { border-bottom: 0; }
+.fx-feed-time {
+  color: var(--muted);
+  font-size: 0.75rem;
+  margin-right: 0.35rem;
+}
+.fx-feed-delta {
+  color: var(--gold);
+  font-weight: 700;
+  margin-left: 0.25rem;
+}
+@media (max-width: 560px) {
+  .fx-standings-head { flex-direction: column; align-items: flex-start; }
+}
