@@ -1013,3 +1013,217 @@ nav a { white-space: nowrap; }
 .rk-champ-rec { color: #d4d4d8; font-weight: 600; letter-spacing: 0.04em; white-space: nowrap; }
 .rk-limit { font-weight: 600; color: #d4d4d8; background: var(--surface); border: 1px solid var(--border); border-radius: 2px; padding: 0.1rem 0.4rem; }
 .rk-jump-lim { color: var(--muted); font-weight: 500; margin-left: 0.15rem; }
+
+/* ---------- Fantasy MMA (/fantasy/) ---------- */
+.fantasy-page { padding: 1.5rem 0 3rem; }
+.fx-hero {
+  margin: 1rem 0 2rem;
+  padding: 1.4rem 1.25rem 1.5rem;
+  background: linear-gradient(135deg, rgba(225,6,0,0.18), rgba(10,10,11,0.95) 55%);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--red);
+  border-radius: 4px;
+}
+.fx-hero h1 {
+  font-family: "Bebas Neue", Impact, sans-serif;
+  font-size: clamp(2.2rem, 6vw, 3.4rem);
+  letter-spacing: 0.04em;
+  line-height: 1;
+  margin: 0.5rem 0 0.6rem;
+}
+.fx-hero .lead { color: #d4d4d8; font-size: 1.05rem; max-width: 40rem; }
+.fx-meta { color: var(--muted); font-size: 0.9rem; margin: 0.25rem 0; }
+.fx-meta strong { color: #f4f4f5; }
+.fx-format {
+  display: inline-block;
+  margin-top: 0.85rem;
+  padding: 0.35rem 0.7rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.fx-section { margin: 2.25rem 0; }
+.fx-section h2 {
+  font-family: "Bebas Neue", Impact, sans-serif;
+  font-size: 2rem;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid var(--red);
+  padding-bottom: 0.35rem;
+  margin-bottom: 1rem;
+}
+.fx-section h2 em { font-style: normal; color: var(--red); }
+.fx-list { padding-left: 1.15rem; color: #d4d4d8; }
+.fx-list li { margin-bottom: 0.45rem; }
+.fx-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid var(--border); border-radius: 4px; }
+.fx-table { width: 100%; border-collapse: collapse; min-width: 280px; background: var(--card); }
+.fx-table th, .fx-table td { padding: 0.7rem 0.85rem; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.92rem; }
+.fx-table th {
+  background: var(--surface);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.fx-table tr:last-child td { border-bottom: 0; }
+.fx-table tbody tr:hover { background: rgba(225,6,0,0.06); }
+.fx-pts { font-family: "Bebas Neue", Impact, sans-serif; font-size: 1.35rem; color: var(--red); letter-spacing: 0.04em; white-space: nowrap; }
+.fx-score-note { display: block; font-size: 0.75rem; color: var(--muted); margin-top: 0.15rem; }
+.fx-source, .fx-lock { margin-top: 0.85rem; color: #d4d4d8; font-size: 0.9rem; }
+.fx-muted { color: var(--muted); font-size: 0.88rem; }
+.fx-draft-order {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+.fx-draft-order h3 {
+  font-family: "Bebas Neue", Impact, sans-serif;
+  font-size: 1.35rem;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+.fx-draft-order ol { list-style: none; display: grid; gap: 0.4rem; }
+.fx-draft-order li { display: flex; align-items: center; gap: 0.6rem; }
+.fx-pick-num {
+  width: 1.6rem; height: 1.6rem;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--red); color: #fff; border-radius: 50%;
+  font-family: "Bebas Neue", Impact, sans-serif; font-size: 1rem;
+}
+.fx-group {
+  font-family: "Bebas Neue", Impact, sans-serif;
+  font-size: 1.45rem;
+  letter-spacing: 0.06em;
+  margin: 1.4rem 0 0.75rem;
+  padding-left: 0.55rem;
+  border-left: 3px solid var(--red);
+}
+.fx-bout-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+}
+@media (min-width: 720px) {
+  .fx-bout-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+.fx-bout {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--red);
+  border-radius: 4px;
+  padding: 0.85rem 0.9rem;
+}
+.fx-bout-meta { display: flex; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.65rem; }
+.fx-wc { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--gold); font-weight: 700; }
+.fx-card-tag { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.fx-bout-fighters { display: flex; flex-direction: column; gap: 0.55rem; }
+@media (min-width: 480px) {
+  .fx-bout-fighters { flex-direction: row; align-items: center; }
+  .fx-fighter { flex: 1; }
+  .fx-vs { flex: 0 0 auto; }
+}
+.fx-fighter { display: flex; align-items: center; gap: 0.65rem; min-width: 0; }
+.fx-fighter-b { justify-content: flex-end; text-align: right; }
+.fx-fighter-b > div { text-align: right; }
+.fx-fighter strong { display: block; font-size: 0.95rem; line-height: 1.2; overflow-wrap: anywhere; }
+.fx-vs-label { display: block; font-size: 0.72rem; color: var(--muted); margin-top: 0.15rem; }
+.fx-vs {
+  font-family: "Bebas Neue", Impact, sans-serif;
+  color: var(--red);
+  font-size: 1.1rem;
+  letter-spacing: 0.08em;
+  text-align: center;
+}
+.fx-avatar {
+  flex: 0 0 auto;
+  width: 2.4rem; height: 2.4rem;
+  border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: linear-gradient(145deg, #2a2a30, #141416);
+  border: 1px solid var(--border);
+  font-family: "Bebas Neue", Impact, sans-serif;
+  font-size: 0.95rem;
+  color: #f4f4f5;
+  letter-spacing: 0.04em;
+}
+.fx-avatar.sm { width: 1.7rem; height: 1.7rem; font-size: 0.75rem; }
+.fx-rank {
+  display: inline-block;
+  margin-left: 0.35rem;
+  padding: 0.05rem 0.35rem;
+  background: rgba(225,6,0,0.18);
+  border: 1px solid var(--red-dim);
+  border-radius: 2px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--red);
+  vertical-align: middle;
+}
+.fx-bout-note, .fx-elig { font-size: 0.75rem; color: var(--muted); margin-top: 0.55rem; }
+.fx-notes { margin: 1rem 0 0; padding-left: 1.1rem; color: var(--muted); font-size: 0.8rem; }
+.fx-notes li { margin-bottom: 0.3rem; }
+.fx-teams-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.9rem;
+}
+@media (min-width: 640px) {
+  .fx-teams-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+.fx-team-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--red);
+  border-radius: 4px;
+  padding: 0.95rem 1rem;
+}
+.fx-team-card.placeholder { border-top-color: #555; }
+.fx-team-card header h3 {
+  font-family: "Bebas Neue", Impact, sans-serif;
+  font-size: 1.55rem;
+  letter-spacing: 0.04em;
+  line-height: 1.05;
+}
+.fx-mgr { font-size: 0.8rem; color: #d4d4d8; margin-top: 0.15rem; }
+.fx-mgr.muted { color: var(--muted); }
+.fx-roster { list-style: none; margin: 0.85rem 0; }
+.fx-roster li {
+  display: flex; align-items: center; gap: 0.55rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid rgba(42,42,48,0.7);
+  font-size: 0.9rem;
+}
+.fx-roster li:last-child { border-bottom: 0; }
+.fx-round {
+  flex: 0 0 1.8rem;
+  font-family: "Bebas Neue", Impact, sans-serif;
+  color: var(--red);
+  font-size: 1.05rem;
+}
+.fx-empty { color: var(--muted); letter-spacing: 0.15em; }
+.fx-team-pts {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding-top: 0.55rem; border-top: 1px solid var(--border);
+  font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted);
+}
+.fx-team-pts strong { font-family: "Bebas Neue", Impact, sans-serif; font-size: 1.6rem; color: var(--red); font-weight: 400; }
+.fx-rank-cell { font-family: "Bebas Neue", Impact, sans-serif; color: var(--red); font-size: 1.2rem; width: 2rem; }
+.fx-pilot {
+  margin-top: 2.5rem;
+  padding: 1.1rem 1.15rem;
+  background: linear-gradient(135deg, rgba(225,6,0,0.12), rgba(20,20,22,0.9) 65%);
+  border: 1px solid var(--red-dim);
+  border-left: 4px solid var(--red);
+  border-radius: 4px;
+}
+.fx-pilot a { color: var(--red); font-weight: 600; }
+.fx-pilot a:hover { text-decoration: underline; }
+@media (min-width: 801px) and (max-width: 1180px) {
+  nav { gap: 0.75rem; font-size: 0.74rem; }
+}
