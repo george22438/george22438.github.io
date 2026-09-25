@@ -139,8 +139,8 @@ nav a.active { color: var(--red); }
   overflow: hidden;
   min-height: 380px;
   background-image:
-    linear-gradient(160deg, rgba(225,6,0,0.28) 0%, transparent 40%),
-    linear-gradient(to top, rgba(10,10,11,0.97) 0%, rgba(10,10,11,0.88) 42%, rgba(10,10,11,0.55) 70%, rgba(10,10,11,0.35) 100%),
+    linear-gradient(160deg, rgba(225,6,0,0.22) 0%, transparent 45%),
+    linear-gradient(to top, rgba(8,8,10,0.98) 0%, rgba(8,8,10,0.92) 38%, rgba(8,8,10,0.72) 58%, rgba(8,8,10,0.45) 78%, rgba(8,8,10,0.30) 100%),
     var(--hero-image, radial-gradient(ellipse at 30% 40%, #3a1010 0%, #121214 70%));
   background-size: cover;
   background-position: left center;
@@ -148,8 +148,8 @@ nav a.active { color: var(--red); }
   border: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  padding: 1.75rem;
+  justify-content: center;
+  padding: 2rem 1.75rem;
   transition: border-color 0.15s;
 }
 .hero-main:hover { border-color: var(--red); }
