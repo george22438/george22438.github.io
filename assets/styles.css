@@ -1228,7 +1228,7 @@ nav a { white-space: nowrap; }
   border-radius: 6px;
   border: 1px solid rgba(212,160,23,0.55);
   border-left: 4px solid var(--gold);
-  background: linear-gradient(135deg, rgba(212,160,23,0.16), rgba(20,20,22,0.95) 60%);
+  background: linear-gradient(135deg, rgba(212,160,23,0.16), rgba(10,10,11,0.98) 60%);
 }
 .fx-king-callout strong {
   display: block;
@@ -1248,6 +1248,79 @@ nav a { white-space: nowrap; }
   line-height: 1;
   margin-top: 0.15rem;
 }
+/* Giant crowning banner (status=final) */
+.fx-king-winner {
+  display: block;
+  margin: 0 0 1.25rem;
+  padding: 1.6rem 1.25rem 1.75rem;
+  text-align: center;
+  border: 2px solid rgba(245, 215, 110, 0.65);
+  border-left: 6px solid var(--gold);
+  border-radius: 8px;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(245, 215, 110, 0.28), transparent 55%),
+    linear-gradient(160deg, rgba(212, 160, 23, 0.22), rgba(10, 10, 11, 0.98) 48%, #0a0a0b);
+  box-shadow:
+    0 0 0 1px rgba(212, 160, 23, 0.2),
+    0 18px 50px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(245, 215, 110, 0.18);
+}
+.fx-king-winner-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  max-width: 28rem;
+  margin: 0 auto;
+}
+.fx-king-crown-giant {
+  display: block;
+  font-size: clamp(3.6rem, 14vw, 5.75rem);
+  line-height: 1;
+  filter: drop-shadow(0 0 18px rgba(245, 215, 110, 0.55))
+    drop-shadow(0 8px 16px rgba(0, 0, 0, 0.65));
+  animation: fx-crown-glow 2.4s ease-in-out infinite;
+}
+@keyframes fx-crown-glow {
+  0%, 100% { transform: translateY(0) scale(1); filter: drop-shadow(0 0 14px rgba(245, 215, 110, 0.45)) drop-shadow(0 8px 16px rgba(0, 0, 0, 0.65)); }
+  50% { transform: translateY(-4px) scale(1.04); filter: drop-shadow(0 0 28px rgba(245, 215, 110, 0.75)) drop-shadow(0 10px 20px rgba(0, 0, 0, 0.7)); }
+}
+.fx-king-claim {
+  display: block;
+  margin: 0.15rem 0 0;
+  font-family: "Bebas Neue", Impact, sans-serif;
+  font-size: clamp(1.15rem, 3.5vw, 1.55rem);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  text-shadow: 0 0 18px rgba(212, 160, 23, 0.35);
+}
+.fx-king-name-hero {
+  display: block;
+  margin: 0.1rem 0 0;
+  font-family: "Bebas Neue", Impact, sans-serif;
+  font-size: clamp(2.8rem, 10vw, 4.4rem);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  line-height: 0.95;
+  color: #fff8e7;
+  text-shadow:
+    0 0 24px rgba(245, 215, 110, 0.35),
+    0 2px 0 rgba(0, 0, 0, 0.85);
+}
+.fx-king-score {
+  margin: 0.35rem 0 0 !important;
+  font-size: 1.05rem !important;
+  color: #f5d76e !important;
+  font-weight: 700;
+}
+.fx-king-tagline {
+  margin: 0.15rem 0 0 !important;
+  font-size: 0.82rem !important;
+  color: #a1a1aa !important;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
 .fx-king-hint { margin: 0 0 0.75rem; }
 .fx-king-badge {
   display: inline-block;
@@ -1263,9 +1336,49 @@ nav a { white-space: nowrap; }
   white-space: nowrap;
 }
 .fx-king-row {
-  background: rgba(212,160,23,0.12);
+  background: linear-gradient(90deg, rgba(212,160,23,0.22), rgba(212,160,23,0.08) 55%, transparent);
+  box-shadow: inset 4px 0 0 var(--gold);
 }
-.fx-king-row td { border-color: rgba(212,160,23,0.25); }
+.fx-king-row td { border-color: rgba(212,160,23,0.35); vertical-align: middle; }
+.fx-king-row:hover { background: linear-gradient(90deg, rgba(212,160,23,0.28), rgba(212,160,23,0.1) 55%, transparent); }
+.fx-king-cell { padding-top: 1rem !important; padding-bottom: 1rem !important; }
+.fx-king-throne {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.12rem;
+  min-width: 0;
+}
+.fx-king-throne .fx-king-crown-giant {
+  font-size: clamp(2.4rem, 8vw, 3.4rem);
+  margin-bottom: 0.1rem;
+  animation: fx-crown-glow 2.4s ease-in-out infinite;
+}
+.fx-king-throne .fx-king-claim {
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  margin: 0;
+}
+.fx-king-name {
+  display: block;
+  font-family: "Bebas Neue", Impact, sans-serif;
+  font-size: clamp(1.85rem, 5.5vw, 2.55rem);
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  line-height: 1;
+  color: #fff8e7;
+  text-shadow: 0 0 16px rgba(245, 215, 110, 0.3);
+}
+.fx-king-pts {
+  font-size: 1.85rem !important;
+  color: var(--gold) !important;
+  text-shadow: 0 0 12px rgba(212, 160, 23, 0.35);
+}
+.fx-king-row .fx-rank-cell {
+  font-size: 1.55rem;
+  color: var(--gold);
+  filter: drop-shadow(0 0 8px rgba(245, 215, 110, 0.45));
+}
 .fx-pilot {
   margin-top: 2.5rem;
   padding: 1.1rem 1.15rem;

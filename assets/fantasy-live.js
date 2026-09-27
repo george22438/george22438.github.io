@@ -181,30 +181,49 @@
     badgeEl.textContent = text;
   }
 
+  function kingTeamCell(t, isKing) {
+    if (!isKing) {
+      return (
+        "<td>" +
+        esc(t.name) +
+        (t.owner
+          ? '<span class="fx-owner">Coach · ' + esc(t.owner) + "</span>"
+          : "") +
+        "</td>"
+      );
+    }
+    return (
+      '<td class="fx-king-cell">' +
+      '<div class="fx-king-throne">' +
+      '<span class="fx-king-crown-giant" aria-hidden="true">👑</span>' +
+      '<span class="fx-king-claim">King of The Ring</span>' +
+      '<strong class="fx-king-name">' +
+      esc(t.name) +
+      "</strong>" +
+      (t.owner
+        ? '<span class="fx-owner">Coach · ' + esc(t.owner) + "</span>"
+        : "") +
+      "</div></td>"
+    );
+  }
+
   function renderStandings(data) {
     var list = teamsArray(data);
     var isFinal = data && data.meta && data.meta.status === "final";
     var rows = list
       .map(function (t, i) {
-        var king =
-          isFinal && i === 0
-            ? '<span class="fx-king-badge" title="Highest-scoring coach">👑 King of The Ring</span>'
-            : "";
+        var isKing = isFinal && i === 0;
         return (
           "<tr" +
-          (isFinal && i === 0 ? ' class="fx-king-row"' : "") +
+          (isKing ? ' class="fx-king-row"' : "") +
           ">" +
           '<td class="fx-rank-cell">' +
-          (i + 1) +
+          (isKing ? "👑" : i + 1) +
           "</td>" +
-          "<td>" +
-          esc(t.name) +
-          (t.owner
-            ? '<span class="fx-owner">Coach · ' + esc(t.owner) + "</span>"
-            : "") +
-          king +
-          "</td>" +
-          '<td class="fx-pts">' +
+          kingTeamCell(t, isKing) +
+          '<td class="fx-pts' +
+          (isKing ? " fx-king-pts" : "") +
+          '">' +
           esc(fmtPts(t.points)) +
           "</td>" +
           "</tr>"
@@ -221,6 +240,7 @@
     var catRows = list
       .map(function (t, i) {
         var b = normalizeBreakdown(t.breakdown);
+        var isKing = isFinal && i === 0;
         var cells = CATEGORIES.map(function (c) {
           var v = b[c.key];
           return (
@@ -233,19 +253,16 @@
         }).join("");
         return (
           "<tr" +
-          (isFinal && i === 0 ? ' class="fx-king-row"' : "") +
+          (isKing ? ' class="fx-king-row"' : "") +
           ">" +
           '<td class="fx-rank-cell">' +
-          (i + 1) +
+          (isKing ? "👑" : i + 1) +
           "</td>" +
-          "<td>" +
-          esc(t.name) +
-          (isFinal && i === 0
-            ? ' <span class="fx-king-badge">👑 King of The Ring</span>'
-            : "") +
-          "</td>" +
+          kingTeamCell(t, isKing) +
           cells +
-          '<td class="fx-pts">' +
+          '<td class="fx-pts' +
+          (isKing ? " fx-king-pts" : "") +
+          '">' +
           esc(fmtPts(t.points)) +
           "</td></tr>"
         );
@@ -256,13 +273,19 @@
     if (isFinal && list.length) {
       kingCallout =
         '<aside class="fx-king-callout fx-king-winner" role="status">' +
-        '<span class="fx-king-crown" aria-hidden="true">👑</span>' +
-        "<div><strong>King of The Ring</strong><p>" +
+        '<div class="fx-king-winner-inner">' +
+        '<span class="fx-king-crown-giant" aria-hidden="true">👑</span>' +
+        '<p class="fx-king-claim">King of The Ring</p>' +
+        '<strong class="fx-king-name-hero">' +
         esc(list[0].name) +
-        (list[0].owner ? " · Coach " + esc(list[0].owner) : "") +
-        " — " +
+        "</strong>" +
+        '<p class="fx-king-score">' +
         esc(fmtPts(list[0].points)) +
-        " pts</p></div></aside>";
+        " pts" +
+        (list[0].owner ? " · Coach " + esc(list[0].owner) : "") +
+        "</p>" +
+        '<p class="fx-king-tagline">Crowned — highest-scoring coach on fight night</p>' +
+        "</div></aside>";
     }
 
     root.innerHTML =
