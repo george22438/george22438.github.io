@@ -16,10 +16,12 @@
 
   var ROOM_DEFAULT = "GARCIA332";
   var DRAFT_PATH = "drafts/ufc332";
-  var TOTAL_PICKS = 20;
+  // Team count comes from SEED.draftOrder (UFC 332: 5 coaches). TOTAL_PICKS =
+  // coaches × SLOTS and is recomputed below once the seed is parsed.
+  var TOTAL_PICKS = 25;
   var SLOTS = 5;
   var PICK_SECONDS = 90;
-  var ORDER_FALLBACK = ["open1", "open3", "tgr", "open2"];
+  var ORDER_FALLBACK = ["open1", "open3", "tgr", "open2", "open4"];
 
   var seedEl = document.getElementById("fd-seed");
   var appEl = document.getElementById("fd-app");
@@ -40,9 +42,25 @@
   var LS_KEY = "tgr-draft-" + EVENT_KEY + "-v1";
   var LS_SESSION = "tgr-draft-session-" + EVENT_KEY + "-v1";
   var CONFIG_ORDER =
-    Array.isArray(SEED.draftOrder) && SEED.draftOrder.length === 4
+    Array.isArray(SEED.draftOrder) && SEED.draftOrder.length >= 2
       ? SEED.draftOrder.slice()
       : ORDER_FALLBACK.slice();
+  if (SEED.format && Number(SEED.format.fightersPerTeam) > 0) {
+    SLOTS = Number(SEED.format.fightersPerTeam);
+  }
+  var NUM_TEAMS = CONFIG_ORDER.length;
+  TOTAL_PICKS = NUM_TEAMS * SLOTS;
+  // Default seat labels [team name, coach] from the page seed (content JSON teams).
+  var SEAT_LABELS = {
+    tgr: ["The Garcia Report", "George Garcia"],
+    open1: ["Ferm20", "Ferm20"],
+    open2: ["Rajmamba24", "Rajmamba24"],
+    open3: ["BigFermPussyLips7", "BigFermPussyLips7"],
+    open4: ["Ayden", "Ayden"],
+  };
+  (SEED.teams || []).forEach(function (t) {
+    if (t && t.id) SEAT_LABELS[t.id] = [t.name || t.id, t.coach || t.manager || t.name || ""];
+  });
   var FIREBASE_READY = !!window.__TGR_FIREBASE_READY__;
   var CONFIG = window.__TGR_FIREBASE_CONFIG__ || {};
   if (SEED.format && Number(SEED.format.pickSeconds) > 0) {
@@ -202,6 +220,12 @@
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   }
 
+  /** Total picks for this room: coaches in the (frozen) snake order × roster slots. */
+  function totalPicks(d) {
+    var order = (d && d.meta && d.meta.snakeOrder) || CONFIG_ORDER;
+    return (order.length || NUM_TEAMS) * SLOTS;
+  }
+
   function teamForPick(snakeOrder, pickIndex) {
     var order = snakeOrder || [];
     var n = order.length;
@@ -272,35 +296,56 @@
     return null;
   }
 
+  function emptyRoster() {
+    var r = [];
+    for (var i = 0; i < SLOTS; i++) r.push(null);
+    return r;
+  }
+
   function emptyTeam(id, name, owner, claimed) {
     return {
       id: id,
       name: name,
       owner: owner || "",
       claimed: !!claimed,
-      roster: [null, null, null, null, null],
+      roster: emptyRoster(),
       picks: [],
     };
   }
 
+  /** Roster rebuilt from picks[] (pickNumber order). Firebase RTDB strips null
+   *  array slots, so a stored roster comes back short (e.g. ["a"]); picks[] is
+   *  the dense source of truth. */
+  function rosterFromPicks(picks) {
+    var r = emptyRoster();
+    (picks || [])
+      .filter(function (p) {
+        return p && p.fighterId;
+      })
+      .slice()
+      .sort(function (a, b) {
+        return (a.pickNumber || 0) - (b.pickNumber || 0);
+      })
+      .forEach(function (p, i) {
+        if (i < SLOTS) r[i] = p.fighterId;
+      });
+    return r;
+  }
+
 
   function ensureTeamShape(id, t) {
-    var labels = {
-      tgr: ["The Garcia Report", "George Garcia"],
-      open1: ["Ferm20", "Ferm20"],
-      open2: ["Rajmamba24", "Rajmamba24"],
-      open3: ["BigFermPussyLips7", "BigFermPussyLips7"],
-    };
-    var L = labels[id] || [id, ""];
+    var L = SEAT_LABELS[id] || [id, ""];
     if (!t) return emptyTeam(id, L[0], L[1], false);
     t.id = t.id || id;
     if (!t.name) t.name = L[0];
     if (t.owner == null) t.owner = L[1];
     if (typeof t.claimed !== "boolean") t.claimed = false;
-    if (!Array.isArray(t.roster) || t.roster.length !== 5) {
-      t.roster = [null, null, null, null, null];
-    }
     if (!Array.isArray(t.picks)) t.picks = [];
+    if (!Array.isArray(t.roster) || t.roster.length !== SLOTS) {
+      // Short/missing roster (RTDB dropped null slots): rebuild from picks
+      // instead of wiping it, so earlier picks are never lost.
+      t.roster = rosterFromPicks(t.picks);
+    }
     return t;
   }
 
@@ -326,7 +371,7 @@
       d.meta.snakeOrder = CONFIG_ORDER.slice();
     }
     if (!d.teams || typeof d.teams !== "object") d.teams = {};
-    ["tgr", "open1", "open2", "open3"].forEach(function (id) {
+    seatIds().forEach(function (id) {
       d.teams[id] = ensureTeamShape(id, d.teams[id]);
     });
     // Keep TGR display name stable until claimed.
@@ -356,15 +401,9 @@
         teams[t.id].claimed = false;
       }
     });
-    ["tgr", "open1", "open2", "open3"].forEach(function (id) {
+    seatIds().forEach(function (id) {
       if (!teams[id]) {
-        var labels = {
-          tgr: ["The Garcia Report", "George Garcia"],
-          open1: ["Ferm20", "Ferm20"],
-          open2: ["Rajmamba24", "Rajmamba24"],
-          open3: ["BigFermPussyLips7", "BigFermPussyLips7"],
-        };
-        var L = labels[id] || [id, ""];
+        var L = SEAT_LABELS[id] || [id, ""];
         teams[id] = emptyTeam(id, L[0], L[1], false);
       }
     });
@@ -547,8 +586,9 @@
     return { ok: true };
   }
 
+  /** Every coach seat, in draft order (SEED.draftOrder — 5 for UFC 332). */
   function seatIds() {
-    return ["tgr", "open1", "open2", "open3"];
+    return CONFIG_ORDER.slice();
   }
 
   function unclaimedSeats(d) {
@@ -570,7 +610,9 @@
       return {
         ok: false,
         error:
-          "Need all 4 seats claimed before starting (waiting on " +
+          "Need all " +
+          NUM_TEAMS +
+          " seats claimed before starting (waiting on " +
           missing.map(function (id) {
             return seatLabel(d, id);
           }).join(", ") +
@@ -636,7 +678,7 @@
     d.meta.round = Math.min(SLOTS, Math.floor(d.meta.pickIndex / d.meta.snakeOrder.length) + 1);
     d.meta.updatedAt = ts;
     d.meta.version = (d.meta.version || 0) + 1;
-    if (d.meta.pickIndex >= TOTAL_PICKS) {
+    if (d.meta.pickIndex >= totalPicks(d)) {
       d.meta.status = "complete";
       d.meta.pickDeadlineMs = null;
       d.meta.pickStartedAt = null;
@@ -660,6 +702,8 @@
     if (!fighter || !fighter.available) return { ok: false, error: "Fighter unavailable" };
     // No same-bout rule for UFC 332: drafting both fighters from one bout is allowed.
 
+    if ((team.picks || []).length >= SLOTS) return { ok: false, error: "Roster full" };
+    team.roster = rosterFromPicks(team.picks);
     var slot = team.roster.indexOf(null);
     if (slot < 0) return { ok: false, error: "Roster full" };
 
@@ -1098,7 +1142,9 @@
         var pts =
           prevPts[id] != null
             ? ' <span class="fd-order-pts">' + esc(Number(prevPts[id]).toFixed(1)) + " pts last event</span>"
-            : "";
+            : basis
+              ? ' <span class="fd-order-pts">New coach</span>'
+              : "";
         return (
           '<li data-team="' +
           esc(id) +
@@ -1144,7 +1190,7 @@
       '<ol class="fd-order-list">' +
       items +
       "</ol>" +
-      '<details class="fd-snake"><summary>Full snake (20 picks)</summary><ul>' +
+      '<details class="fd-snake"><summary>Full snake (' + n * SLOTS + " picks)</summary><ul>" +
       rounds.join("") +
       "</ul></details>" +
       "</div>"
@@ -1187,7 +1233,13 @@
     return (
       '<section class="fd-panel fd-join">' +
       "<h2>Join the <em>draft</em></h2>" +
-      '<p class="fd-muted">4 coaches · 5 fighters · snake · 90s pick clock · both fighters from one bout allowed. Room code <code>' +
+      '<p class="fd-muted">' +
+      NUM_TEAMS +
+      " coaches · " +
+      SLOTS +
+      " fighters · snake · " +
+      PICK_SECONDS +
+      's pick clock · both fighters from one bout allowed. Room code <code>' +
       esc(ROOM_CODE) +
       "</code>. Already claimed a seat? Tap it again to rejoin the lobby (Start lives there).</p>" +
       (state.error ? '<p class="fd-error" role="alert">' + crownText(state.error) + "</p>" : "") +
@@ -1240,7 +1292,9 @@
         '<p class="fd-muted" role="status">You are spectating — Start is only for coaches. Use <strong>Back</strong>, then tap your claimed seat to <strong>rejoin</strong>.</p>';
     } else if (!canStart) {
       waitMsg =
-        '<p class="fd-muted" role="status">Start unlocks when all 4 seats are claimed. Still waiting on <strong>' +
+        '<p class="fd-muted" role="status">Start unlocks when all ' +
+        NUM_TEAMS +
+        " seats are claimed. Still waiting on <strong>" +
         missing
           .map(function (id) {
             return displayTeamName(id, seatLabel(d, id));
@@ -1292,7 +1346,7 @@
   function renderRosters(d, highlightTeam) {
     return (
       '<div class="fd-rosters">' +
-      ["tgr", "open1", "open2", "open3"]
+      seatIds()
         .map(function (id) {
           var t = d.teams[id];
           if (!t) return "";
@@ -1483,7 +1537,8 @@
     var onClockId = teamForPick(d.meta.snakeOrder, pickIndex);
     var onClock = d.teams[onClockId];
     var myTurn = !state.spectator && state.session.teamId === onClockId;
-    var round = d.meta.round || Math.floor(pickIndex / 4) + 1;
+    var round =
+      d.meta.round || Math.floor(pickIndex / ((d.meta.snakeOrder || CONFIG_ORDER).length || NUM_TEAMS)) + 1;
 
     var confirm =
       state.pendingFighter && myTurn
@@ -1536,7 +1591,7 @@
       " · #" +
       esc(String(pickIndex + 1)) +
       "/" +
-      TOTAL_PICKS +
+      totalPicks(d) +
       "</span></span>" +
       '<span id="fd-pin-timer" class="fd-pin-timer' +
       urgentCls +
@@ -1562,7 +1617,7 @@
           " · Pick #" +
           esc(String(pickIndex + 1)) +
           " of " +
-          TOTAL_PICKS +
+          totalPicks(d) +
           (state.spectator ? " · Spectating" : "")) +
       "</div>" +
       clockHtml +
@@ -1585,7 +1640,9 @@
     return (
       '<section class="fd-panel fd-complete">' +
       "<h2>Draft <em>complete</em></h2>" +
-      '<p class="fd-muted">All 20 picks are in. Score Saturday night only — then check standings.</p>' +
+      '<p class="fd-muted">All ' +
+      totalPicks(d) +
+      " picks are in. Score Saturday night only — then check standings.</p>" +
       renderRosters(d, state.session.teamId) +
       "<h3>Pick history</h3>" +
       renderLog(d) +
