@@ -1,19 +1,25 @@
 /**
- * The Garcia Report — Live fantasy draft client (UFC Vegas 121)
- * Firebase Realtime Database under drafts/vegas121.
+ * The Garcia Report — Live fantasy draft client (current event: UFC 332)
+ * Firebase Realtime Database under drafts/ufc332 (path comes from the page seed
+ * / fantasy-firebase-config.js). Archived event: drafts/vegas121 (read-only now).
+ *
+ * UFC 332 rules: snake draft, 5 fighters per coach, 90s pick clock with
+ * auto-pick, and NO same-bout rule — any undrafted fighter is a legal pick
+ * (manual or auto). Draft order = SEED.draftOrder (single config array in
+ * content/fantasy-ufc-332.json → "draftOrder"); it is re-applied from the
+ * config while the room is still in the lobby and frozen at Start.
  * When __TGR_FIREBASE_READY__ is false, runs a local preview (localStorage)
  * so the UX can be tested; live multi-device sync starts once config is filled.
  */
 (function () {
   "use strict";
 
-  var ROOM_DEFAULT = "GARCIA121";
-  var DRAFT_PATH = "drafts/vegas121";
+  var ROOM_DEFAULT = "GARCIA332";
+  var DRAFT_PATH = "drafts/ufc332";
   var TOTAL_PICKS = 20;
   var SLOTS = 5;
   var PICK_SECONDS = 90;
-  var LS_KEY = "tgr-draft-vegas121-v1";
-  var LS_SESSION = "tgr-draft-session-v1";
+  var ORDER_FALLBACK = ["open1", "open3", "tgr", "open2"];
 
   var seedEl = document.getElementById("fd-seed");
   var appEl = document.getElementById("fd-app");
@@ -27,8 +33,16 @@
     return;
   }
 
-  var ROOM_CODE = (window.__TGR_DRAFT_ROOM_CODE__ || ROOM_DEFAULT).toUpperCase();
-  DRAFT_PATH = window.__TGR_DRAFT_PATH__ || DRAFT_PATH;
+  var ROOM_CODE = (SEED.roomCode || window.__TGR_DRAFT_ROOM_CODE__ || ROOM_DEFAULT).toUpperCase();
+  DRAFT_PATH = SEED.draftPath || window.__TGR_DRAFT_PATH__ || DRAFT_PATH;
+  var EVENT_KEY = SEED.eventKey || DRAFT_PATH.split("/").pop() || "event";
+  // Per-event storage so a Vegas 121 seat/session never leaks into UFC 332.
+  var LS_KEY = "tgr-draft-" + EVENT_KEY + "-v1";
+  var LS_SESSION = "tgr-draft-session-" + EVENT_KEY + "-v1";
+  var CONFIG_ORDER =
+    Array.isArray(SEED.draftOrder) && SEED.draftOrder.length === 4
+      ? SEED.draftOrder.slice()
+      : ORDER_FALLBACK.slice();
   var FIREBASE_READY = !!window.__TGR_FIREBASE_READY__;
   var CONFIG = window.__TGR_FIREBASE_CONFIG__ || {};
   if (SEED.format && Number(SEED.format.pickSeconds) > 0) {
@@ -168,7 +182,7 @@
     if (!d || typeof d !== "object") return createInitialDraft();
     if (!d.meta || typeof d.meta !== "object") d.meta = {};
     if (!d.meta.leagueName) {
-      d.meta.leagueName = SEED.leagueName || "Garcia Report Fantasy — UFC Vegas 121";
+      d.meta.leagueName = SEED.leagueName || "Garcia Report Fantasy — UFC 332";
     }
     if (!d.meta.status) d.meta.status = "lobby";
     if (d.meta.round == null) d.meta.round = 1;
@@ -176,8 +190,14 @@
     if (d.meta.version == null) d.meta.version = 0;
     if (d.meta.pickSeconds == null) d.meta.pickSeconds = PICK_SECONDS;
     if (!d.meta.draftLockAt && SEED.draftLock) d.meta.draftLockAt = SEED.draftLock;
-    if (!Array.isArray(d.meta.snakeOrder) || !d.meta.snakeOrder.length) {
-      d.meta.snakeOrder = (SEED.draftOrder || ["tgr", "open1", "open2", "open3"]).slice();
+    // While in the lobby the config array is authoritative (flip it in
+    // content/fantasy-ufc-332.json → draftOrder, rebuild). Frozen at Start.
+    if (
+      d.meta.status === "lobby" ||
+      !Array.isArray(d.meta.snakeOrder) ||
+      !d.meta.snakeOrder.length
+    ) {
+      d.meta.snakeOrder = CONFIG_ORDER.slice();
     }
     if (!d.teams || typeof d.teams !== "object") d.teams = {};
     ["tgr", "open1", "open2", "open3"].forEach(function (id) {
@@ -194,7 +214,7 @@
   }
 
   function createInitialDraft() {
-    var order = (SEED.draftOrder || ["tgr", "open1", "open2", "open3"]).slice();
+    var order = CONFIG_ORDER.slice();
     var teams = {};
     (SEED.teams || []).forEach(function (t) {
       teams[t.id] = emptyTeam(
@@ -224,7 +244,7 @@
     });
     return {
       meta: {
-        leagueName: SEED.leagueName || "Garcia Report Fantasy — UFC Vegas 121",
+        leagueName: SEED.leagueName || "Garcia Report Fantasy — UFC 332",
         updatedAt: now(),
         status: "lobby",
         draftLockAt: SEED.draftLock || "",
@@ -254,7 +274,7 @@
     this._bc = null;
     try {
       if (typeof BroadcastChannel !== "undefined") {
-        this._bc = new BroadcastChannel("tgr-draft-vegas121");
+        this._bc = new BroadcastChannel("tgr-draft-" + EVENT_KEY);
         var self = this;
         this._bc.onmessage = function (ev) {
           if (ev && ev.data === "refresh") self._emit(self._read());
@@ -432,6 +452,7 @@
       };
     }
     d.meta.status = "drafting";
+    d.meta.snakeOrder = CONFIG_ORDER.slice();
     d.meta.round = 1;
     d.meta.pickIndex = 0;
     d.meta.pickSeconds = PICK_SECONDS;
@@ -442,20 +463,18 @@
     return { ok: true };
   }
 
+  /**
+   * UFC 332: no same-bout rule. Any undrafted fighter is legal for any coach,
+   * including the opponent of someone already on that roster. Auto-pick uses
+   * this same function, so manual and auto picks follow identical rules.
+   */
   function legalFightersForTeam(d, teamId) {
     var team = d.teams[teamId];
     if (!team) return [];
-    var rosterBouts = {};
-    (team.roster || []).forEach(function (rid) {
-      if (!rid) return;
-      var rf = d.pool[rid];
-      if (rf && rf.boutId) rosterBouts[rf.boutId] = true;
-    });
     var list = [];
     Object.keys(d.pool || {}).forEach(function (fid) {
       var f = d.pool[fid];
       if (!f || !f.available) return;
-      if (f.boutId && rosterBouts[f.boutId]) return;
       list.push(f);
     });
     return list;
@@ -513,16 +532,7 @@
     if (!team || !team.claimed) return { ok: false, error: "Team not claimed" };
     var fighter = d.pool[fighterId];
     if (!fighter || !fighter.available) return { ok: false, error: "Fighter unavailable" };
-
-    // Same-bout rule: cannot draft opponent of someone already on this roster
-    for (var i = 0; i < team.roster.length; i++) {
-      var rid = team.roster[i];
-      if (!rid) continue;
-      var rf = d.pool[rid];
-      if (rf && rf.boutId && rf.boutId === fighter.boutId) {
-        return { ok: false, error: "You already drafted someone from this bout" };
-      }
-    }
+    // No same-bout rule for UFC 332: drafting both fighters from one bout is allowed.
 
     var slot = team.roster.indexOf(null);
     if (slot < 0) return { ok: false, error: "Roster full" };
@@ -574,7 +584,7 @@
       skipped: true,
       auto: !!opts.auto,
       ts: ts,
-      note: "Auto-skip — no legal fighter left (same-bout / pool empty)",
+      note: "Auto-skip — no undrafted fighter left (pool empty)",
     });
     advanceAfterPick(d, ts);
     return { ok: true };
@@ -890,6 +900,79 @@
     );
   }
 
+  function teamName(d, id) {
+    var t = d && d.teams && d.teams[id];
+    if (t && t.name) return t.name;
+    var st = (SEED.teams || []).filter(function (x) {
+      return x.id === id;
+    })[0];
+    return (st && st.name) || id;
+  }
+
+  /** Draft order + why (final Vegas 121 standings), shown in join/lobby/board. */
+  function renderOrderPanel(d) {
+    var order = (d && d.meta && d.meta.snakeOrder) || CONFIG_ORDER;
+    var basis = SEED.draftOrderBasis || null;
+    var prevPts = (basis && basis.previousPoints) || {};
+    var items = order
+      .map(function (id, i) {
+        var pts =
+          prevPts[id] != null
+            ? ' <span class="fd-order-pts">' + esc(Number(prevPts[id]).toFixed(1)) + " pts last event</span>"
+            : "";
+        return (
+          '<li data-team="' +
+          esc(id) +
+          '"><span class="fx-pick-num">' +
+          (i + 1) +
+          "</span> <strong>" +
+          esc(teamName(d, id)) +
+          "</strong>" +
+          (i === 0 && prevPts[id] != null ? ' <span class="fd-order-crown" title="King of The Ring">👑</span>' : "") +
+          pts +
+          "</li>"
+        );
+      })
+      .join("");
+    var n = order.length;
+    var rounds = [];
+    for (var r = 0; r < SLOTS && n; r++) {
+      var ids = r % 2 === 0 ? order.slice() : order.slice().reverse();
+      rounds.push(
+        "<li><strong>R" +
+          (r + 1) +
+          "</strong> " +
+          esc(
+            ids
+              .map(function (id, j) {
+                return "#" + (r * n + j + 1) + " " + teamName(d, id);
+              })
+              .join(" → ")
+          ) +
+          "</li>"
+      );
+    }
+    return (
+      '<div class="fd-order-panel" id="fd-order">' +
+      "<h3>Draft <em>order</em></h3>" +
+      (basis
+        ? '<p class="fd-muted"><strong>Why:</strong> ' +
+          esc(basis.reason || "") +
+          (basis.previousEventUrl
+            ? ' <a href="' + esc(basis.previousEventUrl) + '">Final ' + esc(basis.label || "standings") + "</a>."
+            : "") +
+          "</p>"
+        : "") +
+      '<ol class="fd-order-list">' +
+      items +
+      "</ol>" +
+      '<details class="fd-snake"><summary>Full snake (20 picks)</summary><ul>' +
+      rounds.join("") +
+      "</ul></details>" +
+      "</div>"
+    );
+  }
+
   function renderJoin() {
     var d = state.draft || createInitialDraft();
     var teams = d.teams || {};
@@ -926,7 +1009,7 @@
     return (
       '<section class="fd-panel fd-join">' +
       "<h2>Join the <em>draft</em></h2>" +
-      '<p class="fd-muted">4 coaches · 5 fighters · snake · 90s pick clock · same-bout rule. Room code default <code>' +
+      '<p class="fd-muted">4 coaches · 5 fighters · snake · 90s pick clock · both fighters from one bout allowed. Room code <code>' +
       esc(ROOM_CODE) +
       "</code>. Already claimed a seat? Tap it again to rejoin the lobby (Start lives there).</p>" +
       (state.error ? '<p class="fd-error" role="alert">' + esc(state.error) + "</p>" : "") +
@@ -943,7 +1026,9 @@
       "</div>" +
       '<div class="fd-join-actions">' +
       '<button type="button" class="fd-btn ghost" id="fd-spectate">Watch as spectator</button>' +
-      "</div></section>"
+      "</div>" +
+      renderOrderPanel(d) +
+      "</section>"
     );
   }
 
@@ -1021,7 +1106,9 @@
       '<div class="fd-join-actions">' +
       startBtn +
       '<button type="button" class="fd-btn ghost" id="fd-leave">Back</button>' +
-      "</div></section>"
+      "</div>" +
+      renderOrderPanel(d) +
+      "</section>"
     );
   }
 
@@ -1079,28 +1166,28 @@
       return b.card === "main";
     });
     var prelims = bouts.filter(function (b) {
-      return b.card !== "main";
+      return b.card === "prelims" || (b.card !== "main" && b.card !== "early");
     });
+    var early = bouts.filter(function (b) {
+      return b.card === "early";
+    });
+    var myTeam = state.session.teamId && d.teams[state.session.teamId];
 
     function boutBlock(bout) {
       function sideBtn(f) {
         if (!f) return "";
         var p = d.pool[f.id];
         var avail = p && p.available;
-        var myTeam = state.session.teamId && d.teams[state.session.teamId];
-        var boutBlocked = false;
-        if (canPick && myTeam) {
-          (myTeam.roster || []).forEach(function (rid) {
-            if (!rid) return;
-            var rf = d.pool[rid];
-            if (rf && rf.boutId === bout.id) boutBlocked = true;
-          });
+        // No same-bout block: the only reasons a button is disabled are
+        // not your turn, already drafted, or a pick in flight.
+        var oppOnMyRoster = false;
+        if (myTeam && p && p.opponentId) {
+          oppOnMyRoster = (myTeam.roster || []).indexOf(p.opponentId) !== -1;
         }
-        var disabled = !canPick || !avail || boutBlocked || state.busy;
+        var disabled = !canPick || !avail || state.busy;
         var cls =
           "fd-fighter-btn" +
           (!avail ? " taken" : "") +
-          (boutBlocked && avail ? " blocked" : "") +
           (state.pendingFighter === f.id ? " pending" : "");
         return (
           '<button type="button" class="' +
@@ -1118,7 +1205,9 @@
           "</strong>" +
           (f.rank != null ? '<span class="fx-rank">#' + esc(String(f.rank)) + "</span>" : "") +
           '<span class="fd-fighter-sub">' +
-          (!avail ? "Drafted" : boutBlocked ? "Same bout" : canPick ? "Tap to draft" : "Available") +
+          (!avail
+            ? "Drafted"
+            : (canPick ? "Tap to draft" : "Available") + (oppOnMyRoster ? " · opponent on your roster" : "")) +
           "</span></span></button>"
         );
       }
@@ -1127,7 +1216,7 @@
         '<div class="fx-bout-meta"><span class="fx-wc">' +
         esc(bout.weightClass) +
         '</span><span class="fx-card-tag">' +
-        (bout.card === "main" ? "Main" : "Prelims") +
+        (bout.card === "main" ? "Main" : bout.card === "early" ? "Early prelims" : "Prelims") +
         "</span></div>" +
         '<div class="fd-bout-row">' +
         sideBtn(bout.fighterA) +
@@ -1146,7 +1235,14 @@
       '<h3 class="fx-group">Prelims</h3>' +
       '<div class="fd-bout-grid">' +
       prelims.map(boutBlock).join("") +
-      "</div></div>"
+      "</div>" +
+      (early.length
+        ? '<h3 class="fx-group">Early Prelims</h3>' +
+          '<div class="fd-bout-grid">' +
+          early.map(boutBlock).join("") +
+          "</div>"
+        : "") +
+      "</div>"
     );
   }
 
@@ -1254,12 +1350,13 @@
       (state.error ? '<p class="fd-error" role="alert">' + esc(state.error) + "</p>" : "") +
       confirm +
       "<h2>Available <em>fighters</em></h2>" +
-      '<p class="fd-muted">Grouped by bout — you cannot draft both fighters from the same fight.</p>' +
+      '<p class="fd-muted">Grouped by bout. No same-bout rule this week — you can draft both fighters from the same fight.</p>' +
       renderPool(d, myTurn) +
       "<h2>Rosters</h2>" +
       renderRosters(d, state.session.teamId) +
       "<h2>Pick <em>history</em></h2>" +
       renderLog(d) +
+      renderOrderPanel(d) +
       "</section>"
     );
   }
@@ -1284,7 +1381,9 @@
     html +=
       '<div class="fd-hero">' +
       '<span class="badge">Live draft</span>' +
-      "<h1>Fantasy Draft · UFC Vegas 121</h1>" +
+      "<h1>" +
+      esc(SEED.draftTitle || "Fantasy Draft · " + ((SEED.event && SEED.event.aka) || "UFC 332")) +
+      "</h1>" +
       '<p class="lead">' +
       esc(SEED.subtitle || "") +
       "</p></div>";

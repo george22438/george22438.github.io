@@ -1,11 +1,14 @@
 /**
- * The Garcia Report — Live fantasy standings (UFC Vegas 121)
+ * The Garcia Report — Live fantasy standings (current event + archives)
  * Subscribes to Firebase RTDB standings path; falls back to static seed JSON.
+ * Per-page seed JSON (#fx-standings-seed) can override standingsPath,
+ * categories and categoryLegend, so /fantasy/ (UFC 332) and
+ * /fantasy/vegas-121/ (archive) share this script.
  */
 (function () {
   "use strict";
 
-  var STANDINGS_PATH = "standings/vegas121";
+  var STANDINGS_PATH = "standings/ufc332";
   var ORDER_DEFAULT = ["tgr", "open1", "open2", "open3"];
 
   // Points by scoring category (keys match agent/updater breakdown object)
@@ -41,7 +44,14 @@
     }
   }
 
-  STANDINGS_PATH = window.__TGR_STANDINGS_PATH__ || STANDINGS_PATH;
+  STANDINGS_PATH =
+    (SEED && SEED.standingsPath) || window.__TGR_STANDINGS_PATH__ || STANDINGS_PATH;
+  if (SEED && Array.isArray(SEED.categories) && SEED.categories.length) {
+    CATEGORIES = SEED.categories;
+  }
+  var LEGEND =
+    (SEED && SEED.categoryLegend) ||
+    "DEC decision · KO finish · SUB submission · DRW draw · KD knockdown · TD takedown · SS sig. strikes · FOTN / POTN bonuses";
   var FIREBASE_READY = !!window.__TGR_FIREBASE_READY__;
   var CONFIG = window.__TGR_FIREBASE_CONFIG__ || {};
 
@@ -71,7 +81,8 @@
     var x = Number(n);
     if (!Number.isFinite(x)) return "0";
     if (Math.abs(x - Math.round(x)) < 1e-9) return String(Math.round(x));
-    return x.toFixed(1).replace(/\.0$/, "");
+    // 0.25 per sig. strike → keep quarter points (e.g. 12.25, 12.5)
+    return x.toFixed(2).replace(/0$/, "").replace(/\.0$/, "");
   }
 
   function emptyBreakdown() {
@@ -299,7 +310,7 @@
       "</tbody></table></div>" +
       '<div class="fx-cat-board">' +
       "<h3>Points by category</h3>" +
-      '<p class="fx-muted fx-cat-legend">DEC decision · KO finish · SUB submission · DRW draw · KD knockdown · TD takedown · SS sig. strikes · FOTN / POTN bonuses</p>' +
+      '<p class="fx-muted fx-cat-legend">' + esc(LEGEND) + "</p>" +
       '<div class="fx-table-wrap fx-cat-scroll">' +
       '<table class="fx-table fx-cat-table">' +
       "<thead><tr>" +

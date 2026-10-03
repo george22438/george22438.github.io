@@ -44,7 +44,8 @@ img { max-width: 100%; height: auto; display: block; }
   text-underline-offset: 3px;
 }
 
-header {
+/* Site top bar only — plain `header` also matched .article-header and card headers */
+header.site-header {
   border-bottom: 1px solid var(--border);
   background: rgba(10,10,11,0.92);
   backdrop-filter: blur(8px);
@@ -384,6 +385,10 @@ footer p { color: var(--muted); font-size: 0.8rem; }
 
 /* Article page */
 .article-header {
+  position: static;
+  background: none;
+  backdrop-filter: none;
+  z-index: auto;
   padding: 2rem 0 1.5rem;
   border-bottom: 1px solid var(--border);
   margin-bottom: 2rem;
@@ -600,7 +605,7 @@ footer p { color: var(--muted); font-size: 0.8rem; }
     gap: 0.85rem;
   }
   nav.open { display: flex; }
-  header { position: sticky; }
+  header.site-header { position: sticky; }
   .header-inner { position: relative; flex-wrap: wrap; }
 }
 
@@ -800,7 +805,7 @@ footer p { color: var(--muted); font-size: 0.8rem; }
     background: var(--bg);
     z-index: 50;
   }
-  header { top: env(safe-area-inset-top, 0px); }
+  header.site-header { top: env(safe-area-inset-top, 0px); }
   .wrap {
     padding-left: max(1.25rem, env(safe-area-inset-left, 0px));
     padding-right: max(1.25rem, env(safe-area-inset-right, 0px));
@@ -999,8 +1004,11 @@ footer p { color: var(--muted); font-size: 0.8rem; }
 .rk-notice .rk-notice-sub { color: var(--muted); font-size: 0.8rem; margin-top: 0.6rem; }
 .rk-notes { margin: 1.25rem 0 0; padding-left: 1.1rem; color: var(--muted); font-size: 0.8rem; }
 .rk-notes li { margin-bottom: 0.35rem; overflow-wrap: anywhere; }
-/* Header nav: keep 6 links on one line on narrow desktops */
-nav a { white-space: nowrap; }
+/* Header nav: keep 6 links on one line on narrow desktops.
+   Scoped to the site menu: a bare `nav a` also hit the post-page .article-nav,
+   so long Older/Newer titles ignored max-width:28ch and pushed the page ~100px wide. */
+#site-nav a { white-space: nowrap; }
+.article-nav a, .article-nav .nav-title { white-space: normal; overflow-wrap: anywhere; }
 @media (min-width: 801px) and (max-width: 1040px) {
   nav { gap: 0.9rem; font-size: 0.78rem; }
 }
@@ -1935,3 +1943,23 @@ nav a { white-space: nowrap; }
 @media (max-width: 560px) {
   .fx-standings-head { flex-direction: column; align-items: flex-start; }
 }
+
+/* Fantasy UFC 332: last-event link, draft order basis, snake rounds, new scoring rows */
+.fx-last-event { margin-top: 0.85rem; font-size: 0.9rem; }
+.fx-last-event a { color: #facc15; font-weight: 700; text-decoration: none; border-bottom: 1px solid rgba(250,204,21,0.4); }
+.fx-last-event a:hover { color: #fde68a; }
+.fx-order-basis { font-size: 0.85rem; color: #d4d4d8; margin: 0 0 0.75rem; max-width: 70ch; }
+.fx-order-why, .fd-order-pts { font-size: 0.75rem; color: var(--muted); margin-left: 0.35rem; }
+.fx-snake-rounds { list-style: none; margin: 0.85rem 0 0; padding: 0; display: grid; gap: 0.3rem; font-size: 0.78rem; color: var(--muted); }
+.fx-snake-rounds strong { color: #e4e4e7; }
+.fx-score-new td:first-child { border-left: 3px solid var(--red); }
+.fx-score-new .fx-score-note { color: #fca5a5; }
+.fx-archive-note { border-color: rgba(250,204,21,0.35); }
+.fd-order-panel { margin-top: 1.25rem; padding: 0.9rem 1rem; border: 1px solid var(--border); border-radius: 4px; background: rgba(255,255,255,0.02); }
+.fd-order-panel h3 { font-family: "Bebas Neue", Impact, sans-serif; font-size: 1.35rem; letter-spacing: 0.04em; margin: 0 0 0.4rem; }
+.fd-order-panel h3 em { font-style: normal; color: var(--red); }
+.fd-order-list { list-style: none; margin: 0.5rem 0; padding: 0; display: grid; gap: 0.35rem; }
+.fd-order-list li { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+.fd-snake { margin-top: 0.4rem; font-size: 0.78rem; color: var(--muted); }
+.fd-snake summary { cursor: pointer; color: #d4d4d8; }
+.fd-snake ul { list-style: none; padding: 0; margin: 0.4rem 0 0; display: grid; gap: 0.25rem; }
