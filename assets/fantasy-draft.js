@@ -16,12 +16,12 @@
 
   var ROOM_DEFAULT = "GARCIA332";
   var DRAFT_PATH = "drafts/ufc332";
-  // Team count comes from SEED.draftOrder (UFC 332: 5 coaches). TOTAL_PICKS =
+  // Team count comes from SEED.draftOrder (UFC 332: 4 coaches). TOTAL_PICKS =
   // coaches × SLOTS and is recomputed below once the seed is parsed.
-  var TOTAL_PICKS = 25;
+  var TOTAL_PICKS = 20;
   var SLOTS = 5;
   var PICK_SECONDS = 90;
-  var ORDER_FALLBACK = ["open1", "open3", "tgr", "open2", "open4"];
+  var ORDER_FALLBACK = ["open1", "open3", "tgr", "open2"];
 
   var seedEl = document.getElementById("fd-seed");
   var appEl = document.getElementById("fd-app");
@@ -56,7 +56,6 @@
     open1: ["Ferm20", "Ferm20"],
     open2: ["Rajmamba24", "Rajmamba24"],
     open3: ["BigFermPussyLips7", "BigFermPussyLips7"],
-    open4: ["Ayden", "Ayden"],
   };
   (SEED.teams || []).forEach(function (t) {
     if (t && t.id) SEAT_LABELS[t.id] = [t.name || t.id, t.coach || t.manager || t.name || ""];
@@ -586,7 +585,7 @@
     return { ok: true };
   }
 
-  /** Every coach seat, in draft order (SEED.draftOrder — 5 for UFC 332). */
+  /** Every coach seat, in draft order (SEED.draftOrder — 4 for UFC 332). */
   function seatIds() {
     return CONFIG_ORDER.slice();
   }

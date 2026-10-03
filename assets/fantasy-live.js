@@ -9,7 +9,7 @@
   "use strict";
 
   var STANDINGS_PATH = "standings/ufc332";
-  var ORDER_DEFAULT = ["open1", "open3", "tgr", "open2", "open4"];
+  var ORDER_DEFAULT = ["open1", "open3", "tgr", "open2"];
 
   // Points by scoring category (keys match agent/updater breakdown object)
   var CATEGORIES = [
