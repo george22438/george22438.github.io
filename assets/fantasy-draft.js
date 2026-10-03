@@ -88,6 +88,101 @@
       .replace(/"/g, "&quot;");
   }
 
+  /* ---------- Crowned team display (display only — Firebase/JSON names untouched) ----------
+   * Mirrors makeCrown() in build.js. Keyed on team id: SEED.crowned (content JSON
+   * "crowned": ["open1"]), falling back to open1 (last event's King of The Ring).
+   * displayTeamName(id, name)            → "👑 Ferm20 👑" (escaped HTML)
+   * displayTeamName(id, name, {top:true}) → same + small crown centered above
+   * crownText(str)                        → escaped prose with crowned names wrapped
+   * Never doubles up: existing 👑 around a name are absorbed, not repeated. */
+  var CROWN = "\uD83D\uDC51";
+  var CROWNED_IDS =
+    SEED && Array.isArray(SEED.crowned) ? SEED.crowned.map(String) : ["open1"];
+  var crownRe = null;
+
+  function stripCrowns(name) {
+    return String(name == null ? "" : name).replace(
+      /^(?:\s|\uD83D\uDC51)+|(?:\s|\uD83D\uDC51)+$/g,
+      ""
+    );
+  }
+
+  function isCrowned(id) {
+    return id != null && CROWNED_IDS.indexOf(String(id)) !== -1;
+  }
+
+  function reEsc(s) {
+    return String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  }
+
+  function setCrownNames(teamList) {
+    var names = [];
+    (teamList || []).forEach(function (t) {
+      if (!t || !isCrowned(t.id)) return;
+      [t.name, t.owner, t.coach, t.manager].forEach(function (n) {
+        var c = stripCrowns(n);
+        if (c && names.indexOf(c) === -1) names.push(c);
+      });
+    });
+    names.sort(function (a, b) {
+      return b.length - a.length;
+    });
+    crownRe = names.length
+      ? new RegExp(
+          "(^|[^A-Za-z0-9_])(?:" + CROWN + "\\s*)?(" +
+            names.map(function (n) { return reEsc(esc(n)); }).join("|") +
+            ")(?![A-Za-z0-9_])(?:\\s*" + CROWN + ")?",
+          "g"
+        )
+      : null;
+  }
+
+  function crownInline(escName) {
+    var e = '<span class="fx-crown-emoji" aria-hidden="true">' + CROWN + "</span>";
+    return '<span class="fx-crowned">' + e + "&nbsp;" + escName + "&nbsp;" + e + "</span>";
+  }
+
+  function displayTeamName(teamId, name, opts) {
+    var n = stripCrowns(name);
+    if (!isCrowned(teamId) || !n) return esc(name);
+    if (opts && opts.top) {
+      var e = '<span class="fx-crown-emoji" aria-hidden="true">' + CROWN + "</span>";
+      return (
+        '<span class="fx-crowned fx-crowned-top">' +
+        '<span class="fx-crown-top" aria-hidden="true">' + CROWN + "</span>" +
+        '<span class="fx-crowned-line">' + e + "&nbsp;" + esc(n) + "&nbsp;" + e + "</span>" +
+        "</span>"
+      );
+    }
+    return crownInline(esc(n));
+  }
+
+  function displayTeamNamePlain(teamId, name) {
+    var n = stripCrowns(name);
+    return isCrowned(teamId) && n ? CROWN + " " + n + " " + CROWN : String(name == null ? "" : name);
+  }
+
+  function crownText(str) {
+    var out = esc(str);
+    return crownRe
+      ? out.replace(crownRe, function (m, pre, n) {
+          return pre + crownInline(n);
+        })
+      : out;
+  }
+
+  setCrownNames(SEED.teams || []);
+
+  function refreshCrownNames(d) {
+    var list = [];
+    var teams = (d && d.teams) || {};
+    Object.keys(teams).forEach(function (id) {
+      var t = teams[id];
+      if (t) list.push({ id: t.id || id, name: t.name, owner: t.owner });
+    });
+    setCrownNames(list.concat(SEED.teams || []));
+  }
+
   function loadSession() {
     try {
       return JSON.parse(localStorage.getItem(LS_SESSION) || "{}") || {};
@@ -926,9 +1021,8 @@
           '"><span class="fx-pick-num">' +
           (i + 1) +
           "</span> <strong>" +
-          esc(teamName(d, id)) +
+          displayTeamName(id, teamName(d, id)) +
           "</strong>" +
-          (i === 0 && prevPts[id] != null ? ' <span class="fd-order-crown" title="King of The Ring">👑</span>' : "") +
           pts +
           "</li>"
         );
@@ -945,7 +1039,7 @@
           esc(
             ids
               .map(function (id, j) {
-                return "#" + (r * n + j + 1) + " " + teamName(d, id);
+                return "#" + (r * n + j + 1) + " " + displayTeamNamePlain(id, teamName(d, id));
               })
               .join(" → ")
           ) +
@@ -957,7 +1051,7 @@
       "<h3>Draft <em>order</em></h3>" +
       (basis
         ? '<p class="fd-muted"><strong>Why:</strong> ' +
-          esc(basis.reason || "") +
+          crownText(basis.reason || "") +
           (basis.previousEventUrl
             ? ' <a href="' + esc(basis.previousEventUrl) + '">Final ' + esc(basis.label || "standings") + "</a>."
             : "") +
@@ -991,12 +1085,12 @@
           (state.busy ? "disabled" : "") +
           ">" +
           "<strong>" +
-          esc(t.name) +
+          displayTeamName(id, t.name, { top: true }) +
           "</strong>" +
           '<span class="fd-seat-meta">' +
           (taken
             ? "Claimed by " +
-              esc(t.owner || "—") +
+              displayTeamName(id, t.owner || "—") +
               " — tap to rejoin this seat"
             : id === "tgr"
               ? "Claim as George / TGR"
@@ -1012,7 +1106,7 @@
       '<p class="fd-muted">4 coaches · 5 fighters · snake · 90s pick clock · both fighters from one bout allowed. Room code <code>' +
       esc(ROOM_CODE) +
       "</code>. Already claimed a seat? Tap it again to rejoin the lobby (Start lives there).</p>" +
-      (state.error ? '<p class="fd-error" role="alert">' + esc(state.error) + "</p>" : "") +
+      (state.error ? '<p class="fd-error" role="alert">' + crownText(state.error) + "</p>" : "") +
       '<label class="fd-field"><span>Display name</span>' +
       '<input id="fd-name" type="text" maxlength="40" autocomplete="nickname" placeholder="Your name" value="' +
       esc(state.session.displayName || "") +
@@ -1044,12 +1138,13 @@
         return (
           '<li class="' +
           (t.claimed ? "claimed" : "") +
+          (isCrowned(id) ? " fd-crowned-seat" : "") +
           '"><strong>' +
-          esc(t.name) +
+          displayTeamName(id, t.name, { top: true }) +
           "</strong>" +
           you +
           '<span>' +
-          (t.claimed ? esc(t.owner || "Claimed") : "Waiting…") +
+          (t.claimed ? displayTeamName(id, t.owner || "Claimed") : "Waiting…") +
           "</span></li>"
         );
       })
@@ -1062,24 +1157,22 @@
     } else if (!canStart) {
       waitMsg =
         '<p class="fd-muted" role="status">Start unlocks when all 4 seats are claimed. Still waiting on <strong>' +
-        esc(
-          missing
-            .map(function (id) {
-              return seatLabel(d, id);
-            })
-            .join(", ")
-        ) +
+        missing
+          .map(function (id) {
+            return displayTeamName(id, seatLabel(d, id));
+          })
+          .join(", ") +
         "</strong> (" +
         missing.length +
         " open). Snake draft stalls if you start with empty seats.</p>";
     } else {
       waitMsg =
         '<p class="fd-muted">All seats claimed. Snake order: ' +
-        esc(
-          (d.meta.snakeOrder || []).map(function (id) {
-            return (teams[id] && teams[id].name) || id;
-          }).join(" → ")
-        ) +
+        (d.meta.snakeOrder || [])
+          .map(function (id) {
+            return displayTeamName(id, (teams[id] && teams[id].name) || id);
+          })
+          .join(" → ") +
         ".</p>";
     }
 
@@ -1098,7 +1191,7 @@
     return (
       '<section class="fd-panel fd-lobby">' +
       "<h2>Draft <em>lobby</em></h2>" +
-      (state.error ? '<p class="fd-error" role="alert">' + esc(state.error) + "</p>" : "") +
+      (state.error ? '<p class="fd-error" role="alert">' + crownText(state.error) + "</p>" : "") +
       '<ul class="fd-lobby-teams">' +
       rows +
       "</ul>" +
@@ -1145,10 +1238,11 @@
             '<article class="fx-team-card fd-roster-card' +
             (mine ? " mine" : "") +
             (t.claimed ? "" : " placeholder") +
+            (isCrowned(id) ? " fx-crowned-card" : "") +
             '"><header><h3>' +
-            esc(t.name) +
+            displayTeamName(id, t.name, { top: true }) +
             "</h3><p class=\"fx-mgr\">Coach · " +
-            esc(t.owner || "Unclaimed") +
+            (t.owner ? displayTeamName(id, t.owner) : "Unclaimed") +
             (mine ? " · you" : "") +
             "</p></header><ul class=\"fx-roster\">" +
             slots +
@@ -1254,7 +1348,7 @@
       log
         .map(function (entry) {
           var t = d.teams[entry.teamId];
-          var teamName = esc((t && t.name) || entry.teamId);
+          var teamName = displayTeamName(entry.teamId, (t && t.name) || entry.teamId);
           var num =
             '<span class="fd-log-num">#' +
             esc(String(entry.pickNumber)) +
@@ -1337,7 +1431,7 @@
           " · Overall #" +
           esc(String(pickIndex + 1))
         : "On the clock: <strong>" +
-          esc((onClock && onClock.name) || onClockId) +
+          displayTeamName(onClockId, (onClock && onClock.name) || onClockId) +
           "</strong> · Round " +
           esc(String(round)) +
           " · Pick #" +
@@ -1347,7 +1441,7 @@
           (state.spectator ? " · Spectating" : "")) +
       "</div>" +
       clockHtml +
-      (state.error ? '<p class="fd-error" role="alert">' + esc(state.error) + "</p>" : "") +
+      (state.error ? '<p class="fd-error" role="alert">' + crownText(state.error) + "</p>" : "") +
       confirm +
       "<h2>Available <em>fighters</em></h2>" +
       '<p class="fd-muted">Grouped by bout. No same-bout rule this week — you can draft both fighters from the same fight.</p>' +
@@ -1377,6 +1471,7 @@
   }
 
   function render() {
+    refreshCrownNames(state.draft);
     var html = statusBanner();
     html +=
       '<div class="fd-hero">' +
@@ -1385,7 +1480,7 @@
       esc(SEED.draftTitle || "Fantasy Draft · " + ((SEED.event && SEED.event.aka) || "UFC 332")) +
       "</h1>" +
       '<p class="lead">' +
-      esc(SEED.subtitle || "") +
+      crownText(SEED.subtitle || "") +
       "</p></div>";
 
     if (!state.draft && adapterKind === "firebase") {

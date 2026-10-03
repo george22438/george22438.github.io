@@ -66,6 +66,91 @@
       .replace(/"/g, "&quot;");
   }
 
+  /* ---------- Crowned team display (display only — Firebase/JSON names untouched) ----------
+   * Mirrors makeCrown() in build.js. Keyed on team id: SEED.crowned (content JSON
+   * "crowned": ["open1"]), falling back to open1 (last event's King of The Ring).
+   * displayTeamName(id, name)            → "👑 Ferm20 👑" (escaped HTML)
+   * displayTeamName(id, name, {top:true}) → same + small crown centered above
+   * crownText(str)                        → escaped prose with crowned names wrapped
+   * Never doubles up: existing 👑 around a name are absorbed, not repeated. */
+  var CROWN = "\uD83D\uDC51";
+  var CROWNED_IDS =
+    SEED && Array.isArray(SEED.crowned) ? SEED.crowned.map(String) : ["open1"];
+  var crownRe = null;
+
+  function stripCrowns(name) {
+    return String(name == null ? "" : name).replace(
+      /^(?:\s|\uD83D\uDC51)+|(?:\s|\uD83D\uDC51)+$/g,
+      ""
+    );
+  }
+
+  function isCrowned(id) {
+    return id != null && CROWNED_IDS.indexOf(String(id)) !== -1;
+  }
+
+  function reEsc(s) {
+    return String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  }
+
+  function setCrownNames(teamList) {
+    var names = [];
+    (teamList || []).forEach(function (t) {
+      if (!t || !isCrowned(t.id)) return;
+      [t.name, t.owner, t.coach, t.manager].forEach(function (n) {
+        var c = stripCrowns(n);
+        if (c && names.indexOf(c) === -1) names.push(c);
+      });
+    });
+    names.sort(function (a, b) {
+      return b.length - a.length;
+    });
+    crownRe = names.length
+      ? new RegExp(
+          "(^|[^A-Za-z0-9_])(?:" + CROWN + "\\s*)?(" +
+            names.map(function (n) { return reEsc(esc(n)); }).join("|") +
+            ")(?![A-Za-z0-9_])(?:\\s*" + CROWN + ")?",
+          "g"
+        )
+      : null;
+  }
+
+  function crownInline(escName) {
+    var e = '<span class="fx-crown-emoji" aria-hidden="true">' + CROWN + "</span>";
+    return '<span class="fx-crowned">' + e + "&nbsp;" + escName + "&nbsp;" + e + "</span>";
+  }
+
+  function displayTeamName(teamId, name, opts) {
+    var n = stripCrowns(name);
+    if (!isCrowned(teamId) || !n) return esc(name);
+    if (opts && opts.top) {
+      var e = '<span class="fx-crown-emoji" aria-hidden="true">' + CROWN + "</span>";
+      return (
+        '<span class="fx-crowned fx-crowned-top">' +
+        '<span class="fx-crown-top" aria-hidden="true">' + CROWN + "</span>" +
+        '<span class="fx-crowned-line">' + e + "&nbsp;" + esc(n) + "&nbsp;" + e + "</span>" +
+        "</span>"
+      );
+    }
+    return crownInline(esc(n));
+  }
+
+  function displayTeamNamePlain(teamId, name) {
+    var n = stripCrowns(name);
+    return isCrowned(teamId) && n ? CROWN + " " + n + " " + CROWN : String(name == null ? "" : name);
+  }
+
+  function crownText(str) {
+    var out = esc(str);
+    return crownRe
+      ? out.replace(crownRe, function (m, pre, n) {
+          return pre + crownInline(n);
+        })
+      : out;
+  }
+
+  setCrownNames((SEED && SEED.teams) || []);
+
   function initials(name, fallback) {
     if (fallback) return String(fallback);
     var parts = String(name || "")
@@ -192,13 +277,13 @@
     badgeEl.textContent = text;
   }
 
-  function kingTeamCell(t, isKing) {
+  function kingTeamCell(t, isKing, top) {
     if (!isKing) {
       return (
         "<td>" +
-        esc(t.name) +
+        displayTeamName(t.id, t.name, { top: !!top }) +
         (t.owner
-          ? '<span class="fx-owner">Coach · ' + esc(t.owner) + "</span>"
+          ? '<span class="fx-owner">Coach · ' + displayTeamName(t.id, t.owner) + "</span>"
           : "") +
         "</td>"
       );
@@ -209,10 +294,10 @@
       '<span class="fx-king-crown-giant" aria-hidden="true">👑</span>' +
       '<span class="fx-king-claim">King of The Ring</span>' +
       '<strong class="fx-king-name">' +
-      esc(t.name) +
+      displayTeamName(t.id, t.name) +
       "</strong>" +
       (t.owner
-        ? '<span class="fx-owner">Coach · ' + esc(t.owner) + "</span>"
+        ? '<span class="fx-owner">Coach · ' + displayTeamName(t.id, t.owner) + "</span>"
         : "") +
       "</div></td>"
     );
@@ -226,12 +311,12 @@
         var isKing = isFinal && i === 0;
         return (
           "<tr" +
-          (isKing ? ' class="fx-king-row"' : "") +
+          (isKing ? ' class="fx-king-row"' : isCrowned(t.id) ? ' class="fx-crowned-row"' : "") +
           ">" +
           '<td class="fx-rank-cell">' +
           (isKing ? "👑" : i + 1) +
           "</td>" +
-          kingTeamCell(t, isKing) +
+          kingTeamCell(t, isKing, true) +
           '<td class="fx-pts' +
           (isKing ? " fx-king-pts" : "") +
           '">' +
@@ -264,12 +349,12 @@
         }).join("");
         return (
           "<tr" +
-          (isKing ? ' class="fx-king-row"' : "") +
+          (isKing ? ' class="fx-king-row"' : isCrowned(t.id) ? ' class="fx-crowned-row"' : "") +
           ">" +
           '<td class="fx-rank-cell">' +
           (isKing ? "👑" : i + 1) +
           "</td>" +
-          kingTeamCell(t, isKing) +
+          kingTeamCell(t, isKing, false) +
           cells +
           '<td class="fx-pts' +
           (isKing ? " fx-king-pts" : "") +
@@ -288,12 +373,12 @@
         '<span class="fx-king-crown-giant" aria-hidden="true">👑</span>' +
         '<p class="fx-king-claim">King of The Ring</p>' +
         '<strong class="fx-king-name-hero">' +
-        esc(list[0].name) +
+        displayTeamName(list[0].id, list[0].name) +
         "</strong>" +
         '<p class="fx-king-score">' +
         esc(fmtPts(list[0].points)) +
         " pts" +
-        (list[0].owner ? " · Coach " + esc(list[0].owner) : "") +
+        (list[0].owner ? " · Coach " + displayTeamName(list[0].id, list[0].owner) : "") +
         "</p>" +
         '<p class="fx-king-tagline">Crowned — highest-scoring coach on fight night</p>' +
         "</div></aside>";
@@ -356,14 +441,16 @@
           }
         }
         return (
-          '<article class="fx-team-card" data-team="' +
+          '<article class="fx-team-card' +
+          (isCrowned(t.id) ? " fx-crowned-card" : "") +
+          '" data-team="' +
           esc(t.id) +
           '">' +
           "<header><h3>" +
-          esc(t.name) +
+          displayTeamName(t.id, t.name, { top: true }) +
           "</h3>" +
           (t.owner
-            ? '<p class="fx-mgr">Coach · ' + esc(t.owner) + "</p>"
+            ? '<p class="fx-mgr">Coach · ' + displayTeamName(t.id, t.owner) + "</p>"
             : "") +
           "</header>" +
           '<ul class="fx-roster">' +
@@ -407,7 +494,7 @@
           '<span class="fx-feed-time">' +
           esc(fmtTime(e.ts)) +
           "</span> " +
-          esc(e.text || "Update") +
+          crownText(e.text || "Update") +
           " " +
           delta +
           "</li>"
@@ -433,6 +520,7 @@
 
   function applyData(data, source) {
     if (!data || !data.teams) return;
+    setCrownNames(teamsArray(data).concat((SEED && SEED.teams) || []));
     renderStandings(data);
     renderTeams(data);
     renderFeed(data);
