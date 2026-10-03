@@ -1965,20 +1965,10 @@ footer p { color: var(--muted); font-size: 0.8rem; }
 .fd-snake ul { list-style: none; padding: 0; margin: 0.4rem 0 0; display: grid; gap: 0.25rem; }
 
 /* ---------- Crowned team (display only): last event's King of The Ring ----------
-   Text: "👑 Name 👑" (.fx-crowned). Big name displays add a small crown centered
-   above the name (.fx-crowned-top). Merges with the .fx-king-* throne/banner:
-   those already have the giant crown, so they only get the inline crowns. */
+   Exactly one crown per name display: the small glowing crown centered above
+   the name (.fx-crowned-top). Text mentions stay plain (no inline crown emoji). The
+   .fx-king-* throne/banner already has its giant crown, so it gets nothing extra. */
 .fx-crowned { color: inherit; white-space: nowrap; }
-.fx-crown-emoji {
-  display: inline-block;
-  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
-  font-size: 0.8em;
-  font-weight: 400;
-  line-height: 1;
-  letter-spacing: 0;
-  text-transform: none;
-  vertical-align: 0.06em;
-}
 .fx-crowned-top {
   display: inline-flex;
   flex-direction: column;
@@ -2019,16 +2009,9 @@ footer p { color: var(--muted); font-size: 0.8rem; }
   font-size: 0.52em;
   margin: 0;
 }
-.fx-team-card header h3 .fx-crown-emoji { font-size: 0.62em; vertical-align: 0.2em; }
 .fx-crowned-card { border-top-color: var(--gold); }
 /* Draft lobby seat cards + lobby rows */
 .fd-seat strong .fx-crowned-top,
 .fd-lobby-teams li strong .fx-crowned-top { vertical-align: bottom; }
 .fd-seat strong .fx-crown-top { font-size: 0.85em; }
 .fd-lobby-teams li strong .fx-crown-top { font-size: 0.85em; }
-/* Giant King of The Ring banner + throne: inline crowns scaled to the caps */
-.fx-king-name-hero .fx-crown-emoji,
-.fx-king-name .fx-crown-emoji { font-size: 0.5em; vertical-align: 0.32em; }
-.fx-king-callout strong .fx-crown-emoji { font-size: 0.62em; vertical-align: 0.22em; }
-.fx-king-hint .fx-crown-emoji,
-.fx-last-event .fx-crown-emoji { font-size: 0.9em; vertical-align: 0; }

@@ -69,10 +69,10 @@
   /* ---------- Crowned team display (display only — Firebase/JSON names untouched) ----------
    * Mirrors makeCrown() in build.js. Keyed on team id: SEED.crowned (content JSON
    * "crowned": ["open1"]), falling back to open1 (last event's King of The Ring).
-   * displayTeamName(id, name)            → "👑 Ferm20 👑" (escaped HTML)
-   * displayTeamName(id, name, {top:true}) → same + small crown centered above
-   * crownText(str)                        → escaped prose with crowned names wrapped
-   * Never doubles up: existing 👑 around a name are absorbed, not repeated. */
+   * displayTeamName(id, name)            → "Ferm20" (escaped HTML, no inline crowns)
+   * displayTeamName(id, name, {top:true}) → name + the single glowing crown centered above
+   * crownText(str)                        → escaped prose; stray 👑 around crowned names stripped
+   * Exactly one crown per name display: only the {top:true} crown above the name. */
   var CROWN = "\uD83D\uDC51";
   var CROWNED_IDS =
     SEED && Array.isArray(SEED.crowned) ? SEED.crowned.map(String) : ["open1"];
@@ -115,36 +115,30 @@
       : null;
   }
 
-  function crownInline(escName) {
-    var e = '<span class="fx-crown-emoji" aria-hidden="true">' + CROWN + "</span>";
-    return '<span class="fx-crowned">' + e + "&nbsp;" + escName + "&nbsp;" + e + "</span>";
-  }
-
   function displayTeamName(teamId, name, opts) {
     var n = stripCrowns(name);
     if (!isCrowned(teamId) || !n) return esc(name);
     if (opts && opts.top) {
-      var e = '<span class="fx-crown-emoji" aria-hidden="true">' + CROWN + "</span>";
       return (
         '<span class="fx-crowned fx-crowned-top">' +
         '<span class="fx-crown-top" aria-hidden="true">' + CROWN + "</span>" +
-        '<span class="fx-crowned-line">' + e + "&nbsp;" + esc(n) + "&nbsp;" + e + "</span>" +
+        '<span class="fx-crowned-line">' + esc(n) + "</span>" +
         "</span>"
       );
     }
-    return crownInline(esc(n));
+    return esc(n);
   }
 
   function displayTeamNamePlain(teamId, name) {
     var n = stripCrowns(name);
-    return isCrowned(teamId) && n ? CROWN + " " + n + " " + CROWN : String(name == null ? "" : name);
+    return isCrowned(teamId) && n ? n : String(name == null ? "" : name);
   }
 
   function crownText(str) {
     var out = esc(str);
     return crownRe
       ? out.replace(crownRe, function (m, pre, n) {
-          return pre + crownInline(n);
+          return pre + n;
         })
       : out;
   }
@@ -314,7 +308,7 @@
           (isKing ? ' class="fx-king-row"' : isCrowned(t.id) ? ' class="fx-crowned-row"' : "") +
           ">" +
           '<td class="fx-rank-cell">' +
-          (isKing ? "👑" : i + 1) +
+          (i + 1) +
           "</td>" +
           kingTeamCell(t, isKing, true) +
           '<td class="fx-pts' +
@@ -352,7 +346,7 @@
           (isKing ? ' class="fx-king-row"' : isCrowned(t.id) ? ' class="fx-crowned-row"' : "") +
           ">" +
           '<td class="fx-rank-cell">' +
-          (isKing ? "👑" : i + 1) +
+          (i + 1) +
           "</td>" +
           kingTeamCell(t, isKing, false) +
           cells +
