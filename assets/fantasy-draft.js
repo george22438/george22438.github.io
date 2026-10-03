@@ -235,6 +235,43 @@
     return pool;
   }
 
+  // BetOnline moneylines from content/fantasy-ufc-332.json (bouts[].fighterX.odds),
+  // read from the page seed by fighter id so live RTDB pool data stays untouched.
+  var ODDS = {};
+  (SEED.bouts || []).forEach(function (bout) {
+    ["fighterA", "fighterB"].forEach(function (side) {
+      var f = bout[side];
+      if (f && f.id && f.odds && f.odds.moneyline) ODDS[f.id] = f.odds;
+    });
+  });
+
+  function oddsPill(fighterId) {
+    var o = ODDS[fighterId];
+    if (!o) return "";
+    var line = String(o.moneyline);
+    var fav = o.role ? o.role === "favorite" : /^-/.test(line);
+    return (
+      '<span class="fd-ml ' +
+      (fav ? "fav" : "dog") +
+      '" title="BetOnline moneyline">' +
+      esc(line.replace(/^-/, "\u2212")) +
+      "</span>"
+    );
+  }
+
+  function draftedByTeam(d, fighterId) {
+    var ids = Object.keys((d && d.teams) || {});
+    for (var i = 0; i < ids.length; i++) {
+      var t = d.teams[ids[i]];
+      if (t && (t.roster || []).indexOf(fighterId) !== -1) return ids[i];
+    }
+    var log = (d && d.log) || [];
+    for (var j = 0; j < log.length; j++) {
+      if (log[j].fighterId === fighterId) return log[j].teamId;
+    }
+    return null;
+  }
+
   function emptyTeam(id, name, owner, claimed) {
     return {
       id: id,
@@ -781,15 +818,68 @@
 
   function updateTimerDom() {
     var el = document.getElementById("fd-pick-timer");
+    var pin = document.getElementById("fd-pin");
+    var pinEl = document.getElementById("fd-pin-timer");
     var d = state.draft;
-    if (!el || !d || !d.meta || d.meta.status !== "drafting") return;
+    if (!d || !d.meta || d.meta.status !== "drafting") {
+      if (pin) pin.classList.remove("show");
+      return;
+    }
     var left = remainingPickMs(d);
     if (left == null) return;
-    el.textContent = formatClock(left);
-    el.classList.toggle("urgent", left <= 15000);
-    el.classList.toggle("expired", left <= 0);
+    var txt = formatClock(left);
+    [el, pinEl].forEach(function (node) {
+      if (!node) return;
+      if (node.textContent !== txt) node.textContent = txt;
+      node.classList.toggle("urgent", left <= 15000);
+      node.classList.toggle("expired", left <= 0);
+    });
+    if (pin) {
+      pin.classList.toggle("urgent", left <= 15000);
+      pin.classList.toggle("expired", left <= 0);
+    }
+    updatePinVisibility();
     if (left <= 0) tryAutoExpire();
   }
+
+  /* ---- Pinned pick clock: stays on screen while scrolling during a live draft ---- */
+  function headerBottomPx() {
+    var h = document.querySelector("header.site-header");
+    if (!h) return 0;
+    var r = h.getBoundingClientRect();
+    return Math.max(0, Math.round(r.bottom));
+  }
+
+  function updatePinVisibility() {
+    var pin = document.getElementById("fd-pin");
+    if (!pin) return;
+    var drafting =
+      state.mode === "drafting" &&
+      state.draft &&
+      state.draft.meta &&
+      state.draft.meta.status === "drafting";
+    var wrap = document.querySelector(".fd-timer-wrap");
+    var top = headerBottomPx();
+    document.documentElement.style.setProperty("--fd-pin-top", top + "px");
+    // Show only once the in-page clock has scrolled up behind the header.
+    var show = !!(drafting && wrap && wrap.getBoundingClientRect().bottom < top + 4);
+    if (pin.classList.contains("show") !== show) {
+      pin.classList.toggle("show", show);
+      pin.setAttribute("aria-hidden", show ? "false" : "true");
+    }
+  }
+
+  var pinScrollQueued = false;
+  function onPinScroll() {
+    if (pinScrollQueued) return;
+    pinScrollQueued = true;
+    (window.requestAnimationFrame || setTimeout)(function () {
+      pinScrollQueued = false;
+      updatePinVisibility();
+    });
+  }
+  window.addEventListener("scroll", onPinScroll, { passive: true });
+  window.addEventListener("resize", onPinScroll);
 
   function ensureTimerLoop() {
     if (timerUiInterval) return;
@@ -1224,7 +1314,9 @@
                 esc(initials(f.name, f.initials)) +
                 "</span><span>" +
                 esc(f.name) +
-                "</span></li>"
+                "</span>" +
+                oddsPill(fid) +
+                "</li>"
               );
             })
             .join("");
@@ -1273,9 +1365,15 @@
           oppOnMyRoster = (myTeam.roster || []).indexOf(p.opponentId) !== -1;
         }
         var disabled = !canPick || !avail || state.busy;
+        var byId = !avail ? draftedByTeam(d, f.id) : null;
+        var byTeam = byId && d.teams[byId];
+        var byName = byTeam
+          ? displayTeamName(byId, byTeam.name || byTeam.owner || byId)
+          : "";
         var cls =
           "fd-fighter-btn" +
-          (!avail ? " taken" : "") +
+          (avail ? " avail" : " taken") +
+          (avail && canPick ? " pickable" : "") +
           (state.pendingFighter === f.id ? " pending" : "");
         return (
           '<button type="button" class="' +
@@ -1288,13 +1386,15 @@
           '<span class="fx-avatar">' +
           esc(initials(f.name, f.initials)) +
           "</span>" +
-          "<span><strong>" +
+          '<span class="fd-fighter-main"><span class="fd-fighter-name"><strong>' +
           esc(f.name) +
           "</strong>" +
+          oddsPill(f.id) +
+          "</span>" +
           (f.rank != null ? '<span class="fx-rank">#' + esc(String(f.rank)) + "</span>" : "") +
           '<span class="fd-fighter-sub">' +
           (!avail
-            ? "Drafted"
+            ? "Drafted" + (byName ? " · " + byName : "")
             : (canPick ? "Tap to draft" : "Available") + (oppOnMyRoster ? " · opponent on your roster" : "")) +
           "</span></span></button>"
         );
@@ -1367,7 +1467,9 @@
             (entry.auto ? "auto-picks" : "selects") +
             " <em>" +
             esc((f && f.name) || entry.fighterId) +
-            "</em></li>"
+            "</em>" +
+            (entry.fighterId ? " " + oddsPill(entry.fighterId) : "") +
+            "</li>"
           );
         })
         .join("") +
@@ -1414,7 +1516,36 @@
       esc(String(d.meta.pickSeconds || PICK_SECONDS)) +
       "s per pick · auto-picks if time runs out</span></div>";
 
+    var urgentCls =
+      (leftMs != null && leftMs <= 15000 ? " urgent" : "") +
+      (leftMs != null && leftMs <= 0 ? " expired" : "");
+    var pinHtml =
+      '<div id="fd-pin" class="fd-pin' +
+      (myTurn ? " mine" : "") +
+      urgentCls +
+      '" aria-hidden="true">' +
+      '<div class="fd-pin-inner">' +
+      '<span class="fd-pin-who">' +
+      (myTurn
+        ? "<strong>Your pick</strong>"
+        : '<span class="fd-pin-label">On the clock</span> <strong>' +
+          displayTeamName(onClockId, (onClock && onClock.name) || onClockId) +
+          "</strong>") +
+      '<span class="fd-pin-meta">Rd ' +
+      esc(String(round)) +
+      " · #" +
+      esc(String(pickIndex + 1)) +
+      "/" +
+      TOTAL_PICKS +
+      "</span></span>" +
+      '<span id="fd-pin-timer" class="fd-pin-timer' +
+      urgentCls +
+      '">' +
+      esc(formatClock(leftMs != null ? leftMs : PICK_SECONDS * 1000)) +
+      "</span></div></div>";
+
     return (
+      pinHtml +
       '<section class="fd-panel fd-board">' +
       '<div class="fd-turn-banner' +
       (myTurn ? " mine" : "") +
@@ -1494,6 +1625,7 @@
       ensureTimerLoop();
       updateTimerDom();
     }
+    updatePinVisibility();
   }
 
   function bind() {
