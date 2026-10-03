@@ -738,8 +738,129 @@ footer p { color: var(--muted); font-size: 0.8rem; }
   font-size: 0.9rem;
   margin-bottom: 1.25rem;
 }
-.giscus, .giscus-frame {
+/* No-login comments (Firebase RTDB) */
+.tgr-comments { min-width: 0; max-width: 100%; }
+.tgr-c-title { display: flex; align-items: center; gap: 0.6rem; }
+.tgr-c-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.9rem;
+  height: 1.6rem;
+  padding: 0 0.5rem;
+  border-radius: 999px;
+  background: var(--red);
+  color: #fff;
+  font-size: 1.05rem;
+  letter-spacing: 0.03em;
+  line-height: 1;
+}
+.tgr-c-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--gold);
+  border-radius: 10px;
+  padding: 1rem;
+  margin-bottom: 1.25rem;
+}
+.tgr-c-label {
+  font-family: "Bebas Neue", Impact, sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.08em;
+  color: var(--gold);
+  text-transform: uppercase;
+}
+.tgr-c-name,
+.tgr-c-text {
   width: 100%;
+  max-width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font: 400 16px/1.45 Inter, system-ui, sans-serif; /* 16px: no iOS zoom on focus */
+  padding: 0.6rem 0.7rem;
+  margin-bottom: 0.35rem;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.tgr-c-text { resize: vertical; min-height: 6.5rem; }
+.tgr-c-name:focus,
+.tgr-c-text:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px rgba(212, 160, 23, 0.25);
+}
+.tgr-c-hpwrap {
+  position: absolute !important;
+  left: -10000px !important;
+  width: 1px; height: 1px;
+  overflow: hidden;
+}
+.tgr-c-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+.tgr-c-chars { color: var(--muted); font-size: 0.8rem; font-variant-numeric: tabular-nums; }
+.tgr-c-chars.is-over { color: var(--red); }
+.tgr-c-post {
+  background: var(--red);
+  color: #fff;
+  border: 0;
+  border-radius: 6px;
+  padding: 0.6rem 1.5rem;
+  min-height: 44px;
+  font-family: "Bebas Neue", Impact, sans-serif;
+  font-size: 1.25rem;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+.tgr-c-post:hover:not(:disabled) { background: #ff1a10; transform: translateY(-1px); }
+.tgr-c-post:disabled { background: var(--red-dim); color: rgba(255,255,255,0.65); cursor: default; }
+.tgr-c-status { font-size: 0.85rem; min-height: 1.1em; margin: 0; color: var(--muted); }
+.tgr-c-status.is-error { color: #ff6b63; }
+.tgr-c-status.is-ok { color: var(--gold); }
+.tgr-c-loading, .tgr-c-empty { color: var(--muted); font-size: 0.95rem; margin: 0 0 1rem; }
+.tgr-comments:not(.is-loading) .tgr-c-loading { display: none; }
+.tgr-c-list { list-style: none; padding: 0; margin: 0; }
+.tgr-c-item {
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--red);
+  background: rgba(255,255,255,0.025);
+  border-radius: 8px;
+  padding: 0.75rem 0.9rem;
+  margin-bottom: 0.6rem;
+  min-width: 0;
+}
+.tgr-c-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.6rem;
+  margin-bottom: 0.3rem;
+}
+.tgr-c-author {
+  color: var(--gold);
+  font-weight: 700;
+  font-size: 0.95rem;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.tgr-c-time { color: var(--muted); font-size: 0.78rem; }
+.tgr-c-body {
+  margin: 0;
+  color: var(--text);
+  font-size: 0.98rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 /* ---------- PWA: install hint ---------- */

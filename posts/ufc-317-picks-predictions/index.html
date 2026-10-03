@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../../assets/styles.css?v=1d9f2fa1d4" />
+  <link rel="stylesheet" href="../../assets/styles.css?v=f2213b6c3e" />
   <link rel="icon" type="image/png" sizes="64x64" href="/assets/favicon.png?v=3" />
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png?v=3" />
   <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png?v=3" />
@@ -203,24 +203,29 @@
         </button>
         <span class="engagement-note" style="margin:0">Tap the glove if this piece hit hard.</span>
       </div>
-      <h3>Comments</h3>
-      <p class="engagement-note">Sign in with GitHub to leave a comment. Keep it respectful — fight talk welcome, disrespect is not.</p>
-      <script src="https://giscus.app/client.js"
-        data-repo="george22438/george22438.github.io"
-        data-repo-id="R_kgDOUhsRZQ"
-        data-category="General"
-        data-category-id="DIC_kwDOUhsRZc4DGL9s"
-        data-mapping="pathname"
-        data-strict="0"
-        data-reactions-enabled="0"
-        data-emit-metadata="0"
-        data-input-position="top"
-        data-theme="dark"
-        data-lang="en"
-        data-loading="lazy"
-        crossorigin="anonymous"
-        async>
-      </script>
+      <div class="tgr-comments is-loading" id="comments" data-comments-slug="ufc-317-picks-predictions" data-firebase-config="/assets/fantasy-firebase-config.js?v=c270643825">
+        <h3 class="tgr-c-title">Comments <span class="tgr-c-count" aria-label="comment count">0</span></h3>
+        <p class="engagement-note">No account needed — just pick a name. Keep it respectful: fight talk welcome, disrespect is not.</p>
+        <form class="tgr-c-form" novalidate autocomplete="on">
+          <label class="tgr-c-label" for="tgr-c-name">Name</label>
+          <input class="tgr-c-name" id="tgr-c-name" name="name" type="text" maxlength="40" autocomplete="nickname" placeholder="Your display name" required>
+          <div class="tgr-c-hpwrap" aria-hidden="true">
+            <label for="tgr-c-website">Website</label>
+            <input class="tgr-c-hp" id="tgr-c-website" name="website" type="text" tabindex="-1" autocomplete="off">
+          </div>
+          <label class="tgr-c-label" for="tgr-c-text">Comment</label>
+          <textarea class="tgr-c-text" id="tgr-c-text" name="comment" rows="4" maxlength="1000" placeholder="Who you got? Make your case." required></textarea>
+          <div class="tgr-c-actions">
+            <span class="tgr-c-chars" aria-live="off">0 / 1000</span>
+            <button type="submit" class="tgr-c-post" disabled>Post</button>
+          </div>
+          <p class="tgr-c-status" role="status" aria-live="polite"></p>
+        </form>
+        <p class="tgr-c-loading">Loading comments…</p>
+        <p class="tgr-c-empty" hidden>No comments yet. Throw the first punch.</p>
+        <ol class="tgr-c-list" aria-label="Comments, newest first"></ol>
+      </div>
+      <script src="/assets/comments.js?v=0f0a8053ab" defer></script>
       <script src="/assets/engagement.js?v=495418034a" defer></script>
     </section>
     </article>
