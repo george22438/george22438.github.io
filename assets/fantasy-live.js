@@ -402,9 +402,41 @@
       "</tbody></table></div></div>";
   }
 
+  // finalView pages (seed.finalView): gold border on the King of The Ring's card.
+  var FINAL_VIEW = !!(SEED && SEED.finalView);
+
+  function renderTopBanner(data) {
+    var top = document.getElementById("fx-king-top");
+    if (!top) return;
+    var list = teamsArray(data);
+    var isFinal = data && data.meta && data.meta.status === "final";
+    if (!isFinal || !list.length) return;
+    var k = list[0];
+    var nameEl = top.querySelector("[data-king-name]");
+    var scoreEl = top.querySelector("[data-king-score]");
+    var tagEl = top.querySelector(".fx-king-tagline");
+    if (nameEl) nameEl.innerHTML = displayTeamName(k.id, k.name);
+    if (scoreEl) {
+      scoreEl.innerHTML =
+        esc(fmtPts(k.points)) + " pts" +
+        (k.owner ? " · Coach " + displayTeamName(k.id, k.owner) : "");
+    }
+    if (tagEl) {
+      tagEl.textContent =
+        "Final · " +
+        list.slice(1).map(function (t) {
+          return displayTeamNamePlain(t.id, t.name) + " " + fmtPts(t.points);
+        }).join(" · ");
+    }
+  }
+
   function renderTeams(data) {
     if (!teamsMount) return;
     var list = teamsArray(data);
+    var kingId =
+      FINAL_VIEW && data && data.meta && data.meta.status === "final" && list[0]
+        ? list[0].id
+        : null;
     var cards = list
       .map(function (t) {
         var roster = t.roster || [];
@@ -437,6 +469,7 @@
         return (
           '<article class="fx-team-card' +
           (isCrowned(t.id) ? " fx-crowned-card" : "") +
+          (kingId && t.id === kingId ? " fx-king-card" : "") +
           '" data-team="' +
           esc(t.id) +
           '">' +
@@ -516,6 +549,7 @@
     if (!data || !data.teams) return;
     setCrownNames(teamsArray(data).concat((SEED && SEED.teams) || []));
     renderStandings(data);
+    renderTopBanner(data);
     renderTeams(data);
     renderFeed(data);
     renderMeta(data);
@@ -530,8 +564,12 @@
     if (!SEED || !SEED.teams) return null;
     var teams = {};
     (SEED.teams || []).forEach(function (t) {
-      var roster = (t.roster || [null, null, null, null, null]).map(function (fid) {
+      var roster = (t.roster || [null, null, null, null, null]).map(function (fid, i) {
         if (!fid) return { id: null, name: null, initials: null, points: 0 };
+        var f = Array.isArray(t.fighters) ? t.fighters[i] : null;
+        if (f && f.id === fid) {
+          return { id: fid, name: f.name || fid, initials: f.initials || null, points: Number(f.points) || 0 };
+        }
         return { id: fid, name: fid, initials: null, points: 0 };
       });
       teams[t.id] = {
@@ -539,14 +577,14 @@
         name: t.name,
         owner: t.coach || t.manager || t.name,
         points: t.points || 0,
-        breakdown: emptyBreakdown(),
+        breakdown: t.breakdown ? normalizeBreakdown(t.breakdown) : emptyBreakdown(),
         roster: roster,
       };
     });
     return {
       meta: {
         leagueName: SEED.leagueName,
-        status: "pre-draft",
+        status: (SEED.finalView && SEED.status) || "pre-draft",
         updatedAt: null,
       },
       teams: teams,

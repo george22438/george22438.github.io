@@ -2289,3 +2289,26 @@ footer p { color: var(--muted); font-size: 0.8rem; }
 .fd-lobby-teams li strong .fx-crowned-top { vertical-align: bottom; }
 .fd-seat strong .fx-crown-top { font-size: 0.85em; }
 .fd-lobby-teams li strong .fx-crown-top { font-size: 0.85em; }
+
+/* ---------- UFC 332 final (finalView): King of The Ring atop /fantasy/ ---------- */
+.fx-king-top {
+  margin: 1rem 0 1.4rem;
+  padding: 1.9rem 1.25rem 2rem;
+  border-left-width: 2px;
+  border-top: 4px solid var(--gold);
+}
+.fx-king-top .fx-king-winner-inner { max-width: 34rem; }
+.fx-king-top .fx-king-crown-giant { font-size: clamp(4.4rem, 20vw, 7.25rem); }
+.fx-king-top .fx-king-name-hero { font-size: clamp(2.1rem, 8.5vw, 3.4rem); }
+.fx-king-top .fx-king-tagline { color: #d4d4d8; }
+/* Winner's team card: full gold border + soft glow (one crown above the name only). */
+.fx-team-card.fx-king-card {
+  border: 2px solid var(--gold);
+  border-top-width: 4px;
+  box-shadow: 0 0 0 1px rgba(245, 215, 110, 0.25), 0 0 22px rgba(212, 160, 23, 0.28);
+  background:
+    linear-gradient(180deg, rgba(212, 160, 23, 0.12), transparent 42%),
+    var(--card);
+}
+.fx-team-card.fx-king-card header h3 { color: #f5d76e; }
+.fx-archives { margin-top: 0.35rem; }
