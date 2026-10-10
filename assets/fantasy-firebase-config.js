@@ -12,9 +12,9 @@
   "messagingSenderId": "473199676465",
   "appId": "1:473199676465:web:d6ddbe9c1a24c4f8f69910"
 };
-  w.__TGR_DRAFT_ROOM_CODE__ = "GARCIA332";
-  w.__TGR_DRAFT_PATH__ = "drafts/ufc332";
-  w.__TGR_STANDINGS_PATH__ = "standings/ufc332";
+  w.__TGR_DRAFT_ROOM_CODE__ = "GARCIA122";
+  w.__TGR_DRAFT_PATH__ = "drafts/vegas122";
+  w.__TGR_STANDINGS_PATH__ = "standings/vegas122";
   var c = w.__TGR_FIREBASE_CONFIG__;
   w.__TGR_FIREBASE_READY__ = true && !!(
     c && c.apiKey && c.databaseURL &&

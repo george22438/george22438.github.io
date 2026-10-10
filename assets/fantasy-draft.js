@@ -268,6 +268,53 @@
     });
   });
 
+  // Record + age (age computed from verified DOB at build time) from the page seed.
+  var FMETA = {};
+  (SEED.bouts || []).forEach(function (bout) {
+    ["fighterA", "fighterB"].forEach(function (side) {
+      var f = bout[side];
+      if (f && f.id) FMETA[f.id] = { record: f.record || "", age: f.age != null ? f.age : null };
+    });
+  });
+
+  function fighterMetaHtml(fighterId) {
+    var m = FMETA[fighterId];
+    if (!m || (!m.record && m.age == null)) return "";
+    return (
+      '<span class="fd-fighter-meta">' +
+      (m.record ? '<span class="fd-rec">' + esc(m.record) + "</span>" : "") +
+      (m.age != null ? '<span class="fd-age">Age ' + esc(String(m.age)) + "</span>" : "") +
+      "</span>"
+    );
+  }
+
+  // "Last pick: Kai Kamaka III → Ferm20" — newest non-skipped log entry (live from RTDB).
+  function lastPickHtml(d, extraCls) {
+    var log = (d && d.log) || [];
+    if (!Array.isArray(log)) log = Object.keys(log).map(function (k) { return log[k]; });
+    var e = null;
+    for (var i = log.length - 1; i >= 0; i--) {
+      if (log[i] && log[i].fighterId && !log[i].skipped) { e = log[i]; break; }
+    }
+    var cls = "fd-lastpick" + (extraCls ? " " + extraCls : "");
+    if (!e) return '<span class="' + cls + ' none">Last pick: —</span>';
+    var f = d.pool && d.pool[e.fighterId];
+    var t = d.teams && d.teams[e.teamId];
+    return (
+      '<span class="' + cls + '"><span class="fd-lastpick-label">Last pick' +
+      (e.pickNumber ? " #" + esc(String(e.pickNumber)) : "") +
+      ':</span> <strong>' +
+      esc((f && f.name) || e.fighterId) +
+      "</strong> " +
+      oddsPill(e.fighterId) +
+      ' <span class="fd-lastpick-to"><span class="fd-lastpick-arrow">\u2192</span> <strong>' +
+      displayTeamName(e.teamId, (t && (t.name || t.owner)) || e.teamId) +
+      "</strong>" +
+      (e.auto ? ' <em class="fd-lastpick-auto">auto</em>' : "") +
+      "</span></span>"
+    );
+  }
+
   function oddsPill(fighterId) {
     var o = ODDS[fighterId];
     if (!o) return "";
@@ -1445,6 +1492,7 @@
           oddsPill(f.id) +
           "</span>" +
           (f.rank != null ? '<span class="fx-rank">#' + esc(String(f.rank)) + "</span>" : "") +
+          fighterMetaHtml(f.id) +
           '<span class="fd-fighter-sub">' +
           (!avail
             ? "Drafted" + (byName ? " · " + byName : "")
@@ -1568,7 +1616,9 @@
       "</span>" +
       '<span class="fd-timer-sub">' +
       esc(String(d.meta.pickSeconds || PICK_SECONDS)) +
-      "s per pick · auto-picks if time runs out</span></div>";
+      "s per pick · auto-picks if time runs out</span>" +
+      lastPickHtml(d) +
+      "</div>";
 
     var urgentCls =
       (leftMs != null && leftMs <= 15000 ? " urgent" : "") +
@@ -1596,7 +1646,9 @@
       urgentCls +
       '">' +
       esc(formatClock(leftMs != null ? leftMs : PICK_SECONDS * 1000)) +
-      "</span></div></div>";
+      "</span></div>" +
+      '<div class="fd-pin-last">' + lastPickHtml(d, "pin") + "</div>" +
+      "</div>";
 
     return (
       pinHtml +

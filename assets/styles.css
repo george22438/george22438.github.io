@@ -2328,3 +2328,48 @@ footer p { color: var(--muted); font-size: 0.8rem; }
 @media (max-width: 800px) {
   .article-nav { display: flex; flex-direction: column; padding: 1.5rem 0 0; border-bottom: 0; }
 }
+
+/* ---------- Vegas 122: last pick line (pick clock + pinned bar) + fighter record/age ---------- */
+.fd-lastpick {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem;
+  flex: 1 1 100%;
+  font-size: 0.84rem;
+  color: #e9e9ee;
+  border-top: 1px solid rgba(212,160,23,0.3);
+  padding-top: 0.45rem;
+  margin-top: 0.15rem;
+}
+.fd-lastpick strong { color: #fff; }
+.fd-lastpick-label { color: var(--gold); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.7rem; }
+.fd-lastpick-arrow { color: var(--gold); font-weight: 700; }
+.fd-lastpick-auto { color: var(--muted); font-size: 0.72rem; }
+.fd-lastpick.none { color: var(--muted); }
+.fd-lastpick .fd-ml { font-size: 0.68rem; }
+.fd-pin-last {
+  max-width: 1120px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  padding: 0 max(1.25rem, env(safe-area-inset-right, 0px)) 0.35rem max(1.25rem, env(safe-area-inset-left, 0px));
+  pointer-events: auto;
+}
+.fd-lastpick.pin {
+  border-top: 0;
+  padding-top: 0;
+  margin-top: -0.1rem;
+  font-size: 0.76rem;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+.fd-lastpick.pin > * { vertical-align: middle; }
+.fd-fighter-meta { display: flex; gap: 0.5rem; font-size: 0.74rem; color: #cfcfd6; margin-top: 0.1rem; }
+.fd-fighter-meta .fd-age { color: var(--gold); font-weight: 600; }
+.fd-fighter-btn.taken .fd-fighter-meta,
+.fd-fighter-btn.taken .fd-fighter-meta .fd-age { color: #77777f; }
+.fd-lastpick-to { white-space: nowrap; }
+.fd-lastpick-to strong { color: var(--gold); }
