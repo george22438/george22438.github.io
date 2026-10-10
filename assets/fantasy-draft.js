@@ -315,6 +315,36 @@
     );
   }
 
+  // Underdog win boost tag (Vegas 122+): odds.underdogMult from the locked lines in content JSON.
+  function dogRuleHtml() {
+    var ub = SEED.scoring && SEED.scoring.underdogBoost;
+    if (!ub || !ub.summary) return "";
+    return '<p class="fd-muted fx-dog-note"><strong>\uD83D\uDC36 Underdog win boost:</strong> ' + esc(ub.summary) + "</p>";
+  }
+
+  // Banded formula from SEED.scoring.underdogBoost.formula (mirrors the scoring script).
+  function underdogMult(line) {
+    var F = SEED.scoring && SEED.scoring.underdogBoost && SEED.scoring.underdogBoost.formula;
+    if (!F || line == null) return 1;
+    var n = Number(String(line).replace(/\u2212/g, "-").replace(/[^0-9+\-.]/g, ""));
+    if (!isFinite(n) || n < F.minLine) return 1;
+    if (n <= F.firstBandMax) return F.firstBandMult;
+    return Math.round((F.stepStartMult + F.stepIncrement * Math.floor((n - F.stepStart) / F.stepSize)) * 100) / 100;
+  }
+
+  function dogTag(fighterId) {
+    var o = ODDS[fighterId];
+    var m = o ? underdogMult(o.moneyline) : 1;
+    if (!m || m <= 1) return "";
+    return (
+      '<span class="fd-dog" title="Underdog win boost: ' +
+      esc(String(m)) +
+      'x fight points if this fighter wins">\uD83D\uDC36 ' +
+      esc(String(m)) +
+      "x if win</span>"
+    );
+  }
+
   function oddsPill(fighterId) {
     var o = ODDS[fighterId];
     if (!o) return "";
@@ -1239,6 +1269,7 @@
       '<details class="fd-snake"><summary>Full snake (' + n * SLOTS + " picks)</summary><ul>" +
       rounds.join("") +
       "</ul></details>" +
+      dogRuleHtml() +
       "</div>"
     );
   }
@@ -1415,6 +1446,7 @@
                 "</span><span>" +
                 esc(f.name) +
                 "</span>" +
+                dogTag(fid) +
                 oddsPill(fid) +
                 "</li>"
               );
@@ -1493,6 +1525,7 @@
           "</span>" +
           (f.rank != null ? '<span class="fx-rank">#' + esc(String(f.rank)) + "</span>" : "") +
           fighterMetaHtml(f.id) +
+          dogTag(f.id) +
           '<span class="fd-fighter-sub">' +
           (!avail
             ? "Drafted" + (byName ? " · " + byName : "")
@@ -1675,7 +1708,9 @@
       (state.error ? '<p class="fd-error" role="alert">' + crownText(state.error) + "</p>" : "") +
       confirm +
       "<h2>Available <em>fighters</em></h2>" +
-      '<p class="fd-muted">Grouped by bout. No same-bout rule this week — you can draft both fighters from the same fight.</p>' +
+      '<p class="fd-muted">Grouped by bout. No same-bout rule this week — you can draft both fighters from the same fight.' +
+        (SEED.scoring && SEED.scoring.underdogBoost ? " \uD83D\uDC36 tags = winning-underdog multiplier on that fighter\u2019s points." : "") +
+        "</p>" +
       renderPool(d, myTurn) +
       "<h2>Rosters</h2>" +
       renderRosters(d, state.session.teamId) +
