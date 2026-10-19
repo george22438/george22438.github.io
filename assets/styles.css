@@ -2379,3 +2379,51 @@ footer p { color: var(--muted); font-size: 0.8rem; }
 .fx-roster li .fd-dog + .fd-ml { margin-left: 0.3rem; }
 .fd-fighter-btn.taken .fd-dog { color: #8a8a93; background: transparent; border-color: #3a3a40; }
 .fx-dog-note { font-size: 0.85rem; color: #bbf7d0; }
+
+/* ---------- Fantasy Fighter Leaderboard (/fantasy/leaderboard/) ---------- */
+.fx-lb-link { margin-top: 0.5rem; }
+.fx-lb-link a { font-weight: 700; }
+.lb-chips { display: flex; flex-wrap: wrap; gap: 0.45rem; margin: 0 0 0.75rem; }
+.lb-chip {
+  font: inherit; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.03em;
+  padding: 0.45rem 0.8rem; border-radius: 999px; cursor: pointer;
+  background: var(--surface); color: #d4d4d8; border: 1px solid var(--border);
+}
+.lb-chip:hover { border-color: var(--red); color: #fff; }
+.lb-chip.is-active { background: var(--red); border-color: var(--red); color: #fff; }
+.lb-hint { margin: 0 0 0.6rem; }
+.lb-table { min-width: 760px; }
+.lb-table th.lb-sortable { padding: 0; }
+.lb-table th.lb-sortable button {
+  all: unset; box-sizing: border-box; display: block; width: 100%; cursor: pointer;
+  padding: 0.7rem 0.6rem; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted);
+}
+.lb-table th.lb-sortable button:hover, .lb-table th.lb-sortable button:focus-visible { color: #fff; }
+.lb-table th[aria-sort="descending"] button::after { content: " ▼"; color: var(--red); }
+.lb-table th[aria-sort="ascending"] button::after { content: " ▲"; color: var(--red); }
+.lb-table th.lb-num button, .lb-table td.lb-total { text-align: right; }
+.lb-table td, .lb-table th { padding: 0.6rem; }
+.lb-rank { font-family: "Bebas Neue", Impact, sans-serif; font-size: 1.15rem; color: var(--muted); width: 2.2rem; }
+.lb-table tbody tr:nth-child(-n+3) .lb-rank { color: var(--gold); }
+.lb-fighter { white-space: normal !important; min-width: 9.5rem; }
+.lb-fighter strong { color: #fff; display: block; }
+.lb-sub { display: block; font-size: 0.72rem; color: var(--muted); margin-top: 0.1rem; }
+.lb-ev-tag {
+  display: inline-block; font-size: 0.68rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
+  padding: 0.15rem 0.4rem; border: 1px solid var(--border); border-radius: 3px; color: #d4d4d8; background: var(--surface);
+}
+.lb-table th:nth-child(1), .lb-table td:nth-child(1),
+.lb-table th:nth-child(2), .lb-table td:nth-child(2) { position: sticky; background: var(--card); z-index: 1; }
+.lb-table th:nth-child(1), .lb-table th:nth-child(2) { background: var(--surface); z-index: 2; }
+.lb-table th:nth-child(1), .lb-table td:nth-child(1) { left: 0; }
+.lb-table th:nth-child(2), .lb-table td:nth-child(2) { left: 2.2rem; box-shadow: 1px 0 0 var(--border); }
+.lb-legend { margin-top: 0.6rem; font-size: 0.78rem; }
+.lb-score-pts { white-space: nowrap; font-weight: 600; color: var(--red); }
+.lb-events li { margin-bottom: 0.75rem; }
+@media (max-width: 600px) {
+  .lb-fighter { min-width: 8.5rem; }
+  .lb-table td, .lb-table th { font-size: 0.78rem; }
+  .lb-score-pts { white-space: normal; }
+}
+.lb-table th:last-child, .lb-table td:last-child { position: sticky; right: 0; background: var(--card); box-shadow: -1px 0 0 var(--border); z-index: 1; }
+.lb-table th:last-child { background: var(--surface); z-index: 2; }
