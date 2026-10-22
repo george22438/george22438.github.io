@@ -2427,3 +2427,8 @@ footer p { color: var(--muted); font-size: 0.8rem; }
 }
 .lb-table th:last-child, .lb-table td:last-child { position: sticky; right: 0; background: var(--card); box-shadow: -1px 0 0 var(--border); z-index: 1; }
 .lb-table th:last-child { background: var(--surface); z-index: 2; }
+
+/* Per-post: center the homepage hero crop on mobile (Garcia–Mayweather glove touch) */
+@media (max-width: 760px) {
+  .hero-main.hero-main--center-mobile { background-position: center center; }
+}
